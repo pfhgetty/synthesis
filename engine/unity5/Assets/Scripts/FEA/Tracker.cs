@@ -11,7 +11,7 @@ namespace Assets.Scripts.FEA
 {
     public class Tracker : MonoBehaviour
     {
-        private const float fixedTimeStep = 1f / 60f;
+        public const float FixedTimeStep = 1f / 60f;
 
         private BPhysicsWorld physicsWorld;
         private RigidBody rigidBody;
@@ -29,7 +29,7 @@ namespace Assets.Scripts.FEA
         /// <summary>
         /// The number of states in the queue.
         /// </summary>
-        public const int Length = (int)(Lifetime / fixedTimeStep);
+        public static readonly int Length = (int)(Lifetime / FixedTimeStep);
 
         /// <summary>
         /// If true, lines will be drawn showing the history of the parent's motion.
@@ -70,7 +70,7 @@ namespace Assets.Scripts.FEA
 
             if (numSteps == 1) // This will be the case the vast majority of the time
             {
-                States.Add(State);
+                States.Add(nextState);
             }
             else // If there's some random lag spike
             {

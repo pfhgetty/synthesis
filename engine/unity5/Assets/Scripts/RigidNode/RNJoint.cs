@@ -20,6 +20,12 @@ public partial class RigidNode : RigidNode_Base
 
     public void CreateJoint()
     {
+        if (GetParent() == null)
+        {
+            MainObject.AddComponent<BRaycastVehicle>();
+            return;
+        }
+
         if (joint != null || GetSkeletalJoint() == null)
             return;
 
@@ -27,22 +33,23 @@ public partial class RigidNode : RigidNode_Base
         {
             case SkeletalJointType.ROTATIONAL:
 
-                WheelType wheelType = WheelType.NOT_A_WHEEL;
-
-                if (this.HasDriverMeta<WheelDriverMeta>())
-                {
-                    OrientWheelNormals();
-                    wheelType = this.GetDriverMeta<WheelDriverMeta>().type;
-                }
-
                 RotationalJoint_Base rNode = (RotationalJoint_Base)GetSkeletalJoint();
-
-                BHingedConstraintEx hc = (BHingedConstraintEx)(joint = ConfigJoint<BHingedConstraintEx>(rNode.basePoint.AsV3() - ComOffset, rNode.axis.AsV3(), AxisType.X));
                 Vector3 rAxis = rNode.axis.AsV3().normalized;
+
+                //if (this.HasDriverMeta<WheelDriverMeta>())
+                //{
+                //    //OrientWheelNormals();
+                //    ((RigidNode)GetParent()).MainObject.GetComponent<BRaycastVehicle>().AddWheel(
+                //        MainObject.transform.position.ToBullet() - ((RigidNode)GetParent()).MainObject.transform.position.ToBullet() - (rNode.basePoint.AsV3() - ComOffset).ToBullet(),
+                //        rAxis.ToBullet(), 0.25f);
+                //    return;
+                //}
+
+                BHingedConstraintEx hc = (BHingedConstraintEx)(joint = ConfigJoint<BHingedConstraintEx>(rNode.basePoint.AsV3() - ComOffset, rNode.axis.AsV3(), AxisType.X));             
 
                 hc.axisInA = rAxis;
                 hc.axisInB = rAxis;
-
+                
                 if (hc.setLimit = rNode.hasAngularLimit)
                 {
                     hc.lowLimitAngleRadians = rNode.currentAngularPosition - rNode.angularLimitHigh;
@@ -88,7 +95,7 @@ public partial class RigidNode : RigidNode_Base
                 sc.constraintType = BTypedConstraint.ConstraintType.constrainToAnotherBody;
 
                 bool b = this.HasDriverMeta<ElevatorDriverMeta>();
-
+                
                 if (GetSkeletalJoint().cDriver != null)
                 {
                     if (GetSkeletalJoint().cDriver.GetDriveType().IsElevator())
@@ -113,6 +120,7 @@ public partial class RigidNode : RigidNode_Base
         T joint = MainObject.AddComponent<T>();
         joint.otherRigidBody = parent.GetComponent<BRigidBody>();
         joint.localConstraintPoint = position;
+        joint.overrideNumSolverIterations = 100;
 
         joint.debugDrawSize = 0.1f;
 

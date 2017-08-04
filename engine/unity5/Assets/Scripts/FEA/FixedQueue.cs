@@ -113,6 +113,20 @@ namespace Assets.Scripts.FEA
         }
 
         /// <summary>
+        /// Returns the next element and advances the FixedQueue.
+        /// </summary>
+        /// <returns></returns>
+        public T Advance()
+        {
+            int prevIndex = marker;
+
+            if (++marker == values.Length)
+                marker = 0;
+
+            return values[prevIndex];
+        }
+
+        /// <summary>
         /// Used for enumerating through each value in the FixedQueue.
         /// </summary>
         /// <returns></returns>

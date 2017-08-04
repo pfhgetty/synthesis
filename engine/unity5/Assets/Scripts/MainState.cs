@@ -10,6 +10,7 @@ using System.IO;
 using Assets.Scripts.FEA;
 using Assets.Scripts.FSM;
 using System.Linq;
+using Assets.Scripts.BUExtensions;
 
 public class MainState : SimState
 {
@@ -98,6 +99,7 @@ public class MainState : SimState
         GImpactCollisionAlgorithm.RegisterAlgorithm((CollisionDispatcher)BPhysicsWorld.Get().world.Dispatcher);
         BPhysicsWorld.Get().DebugDrawMode = DebugDrawModes.DrawWireframe | DebugDrawModes.DrawConstraints | DebugDrawModes.DrawConstraintLimits;
         BPhysicsWorld.Get().DoDebugDraw = false;
+        BPhysicsWorld.Get().fixedTimeStep = Tracker.FixedTimeStep;
         ((DynamicsWorld)BPhysicsWorld.Get().world).SolverInfo.NumIterations = SolverIterations;
     }
 
@@ -401,11 +403,6 @@ public class MainState : SimState
             }
         }
 
-        BRigidBody rigidBody = robotObject.GetComponentInChildren<BRigidBody>();
-
-        if (!rigidBody.GetCollisionObject().IsActive)
-            rigidBody.GetCollisionObject().Activate();
-
         if (!IsResetting && Input.GetKey(KeyCode.Space))
         {
             contactPoints.Add(null);
@@ -423,7 +420,7 @@ public class MainState : SimState
 
             if (!ControlsDisabled) DriveJoints.UpdateAllMotors(rootNode, packet.dio);
         }
-        
+
         if (IsResetting)
         {
             Resetting();
@@ -501,6 +498,7 @@ public class MainState : SimState
         foreach (RigidNode_Base n in nodes)
         {
             RigidNode node = (RigidNode)n;
+
             node.CreateTransform(robotObject.transform);
 
             if (!node.CreateMesh(directory + "\\" + node.ModelFileName))
@@ -508,6 +506,14 @@ public class MainState : SimState
                 Debug.Log("Robot not loaded!");
                 UnityEngine.Object.Destroy(robotObject);
                 return false;
+            }
+
+            if (n.HasDriverMeta<WheelDriverMeta>() && n.GetDriverMeta<WheelDriverMeta>().type != WheelType.NOT_A_WHEEL)
+            {
+                WheelType wheelType = n.GetDriverMeta<WheelDriverMeta>().type;
+                node.MainObject.AddComponent<BRaycastWheel>().CreateWheel(node);
+                node.MainObject.transform.parent = ((RigidNode)node.GetParent()).MainObject.transform;
+                continue;
             }
 
             node.CreateJoint();
@@ -537,7 +543,8 @@ public class MainState : SimState
         //Attached to main frame and face the front
         robotCamera.AddCamera(robotObject.transform.GetChild(0).transform, robotCameraPosition, robotCameraRotation);
         //Attached to the first node and face the front
-        robotCamera.AddCamera(robotObject.transform.GetChild(1).transform, robotCameraPosition2, robotCameraRotation2);
+        if (robotObject.transform.childCount > 1)
+            robotCamera.AddCamera(robotObject.transform.GetChild(1).transform, robotCameraPosition2, robotCameraRotation2);
         //Attached to main frame and face the back
         robotCamera.AddCamera(robotObject.transform.GetChild(0).transform, robotCameraPosition3, robotCameraRotation3);
 
@@ -638,20 +645,20 @@ public class MainState : SimState
             for (int i = numSteps; i > 0; i--)
             {
                 List<ContactDescriptor> frameContacts = null;
-
+                
                 int numManifolds = physicsWorld.world.Dispatcher.NumManifolds;
-
+                
                 for (int j = 0; j < numManifolds; j++)
                 {
                     PersistentManifold contactManifold = physicsWorld.world.Dispatcher.GetManifoldByIndexInternal(j);
-                    BRigidBody obA = (BRigidBody)contactManifold.Body0.UserObject;
-                    BRigidBody obB = (BRigidBody)contactManifold.Body1.UserObject;
+                    BRigidBody obA = contactManifold.Body0.UserObject as BRigidBody;
+                    BRigidBody obB = contactManifold.Body1.UserObject as BRigidBody;
 
-                    if (!obA.gameObject.name.StartsWith("node") && !obB.gameObject.name.StartsWith("node"))
+                    if ((obA == null || obB == null) || (!obA.gameObject.name.StartsWith("node") && !obB.gameObject.name.StartsWith("node")))
                         continue;
 
                     ManifoldPoint mp = null;
-
+                    
                     int numContacts = contactManifold.NumContacts;
 
                     for (int k = 0; k < numContacts; k++)
@@ -674,6 +681,8 @@ public class MainState : SimState
                         Position = (mp.PositionWorldOnA + mp.PositionWorldOnB) * 0.5f,
                         RobotBody = obA.name.StartsWith("node") ? obA : obB
                     });
+
+                    contactManifold.Dispose();
                 }
 
                 contactPoints.Add(frameContacts);
@@ -695,7 +704,12 @@ public class MainState : SimState
 
         foreach (RigidNode n in rootNode.ListAllNodes())
         {
-            RigidBody r = (RigidBody)n.MainObject.GetComponent<BRigidBody>().GetCollisionObject();
+            BRigidBody br = n.MainObject.GetComponent<BRigidBody>();
+
+            if (br == null)
+                continue;
+
+            RigidBody r = (RigidBody)br.GetCollisionObject();
             r.LinearVelocity = r.AngularVelocity = BulletSharp.Math.Vector3.Zero;
             r.LinearFactor = r.AngularFactor = BulletSharp.Math.Vector3.Zero;
             
@@ -764,7 +778,12 @@ public class MainState : SimState
 
         foreach (RigidNode n in rootNode.ListAllNodes())
         {
-            RigidBody r = (RigidBody)n.MainObject.GetComponent<BRigidBody>().GetCollisionObject();
+            BRigidBody br = n.MainObject.GetComponent<BRigidBody>();
+
+            if (br == null)
+                continue;
+
+            RigidBody r = (RigidBody)br.GetCollisionObject();
             r.LinearFactor = r.AngularFactor = BulletSharp.Math.Vector3.One;
         }
 
@@ -781,7 +800,12 @@ public class MainState : SimState
     {
         foreach (RigidNode n in rootNode.ListAllNodes())
         {
-            RigidBody r = (RigidBody)n.MainObject.GetComponent<BRigidBody>().GetCollisionObject();
+            BRigidBody br = n.MainObject.GetComponent<BRigidBody>();
+
+            if (br == null)
+                continue;
+
+            RigidBody r = (RigidBody)br.GetCollisionObject();
 
             BulletSharp.Math.Matrix newTransform = r.WorldTransform;
             newTransform.Origin += transposition.ToBullet();
@@ -795,7 +819,12 @@ public class MainState : SimState
 
         foreach (RigidNode n in rootNode.ListAllNodes())
         {
-            RigidBody r = (RigidBody)n.MainObject.GetComponent<BRigidBody>().GetCollisionObject();
+            BRigidBody br = n.MainObject.GetComponent<BRigidBody>();
+
+            if (br == null)
+                continue;
+
+            RigidBody r = (RigidBody)br.GetCollisionObject();
 
             if (origin == null)
                 origin = r.CenterOfMassPosition;

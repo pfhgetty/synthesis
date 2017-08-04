@@ -44,18 +44,14 @@ public partial class RigidNode : RigidNode_Base
         {
             colliders[id] = meshu;
         });
-
+        
         MainObject.transform.position = root.position + ComOffset;
         MainObject.transform.rotation = root.rotation;
 
         foreach (GameObject meshObject in meshObjects)
             meshObject.transform.parent = MainObject.transform;
 
-        if (this.HasDriverMeta<WheelDriverMeta>())
-        {
-            CreateWheel();
-        }
-        else
+        if (!this.HasDriverMeta<WheelDriverMeta>() || this.GetDriverMeta<WheelDriverMeta>().type == WheelType.NOT_A_WHEEL)
         {
             BMultiHullShape hullShape = MainObject.AddComponent<BMultiHullShape>();
 
@@ -65,24 +61,51 @@ public partial class RigidNode : RigidNode_Base
                 hull.Margin = 0f;
                 hullShape.AddHullShape(hull, BulletSharp.Math.Matrix.Translation(-ComOffset.ToBullet()));
             }
+
+            physicalProperties = mesh.physics;
+
+            BRigidBody rigidBody = MainObject.AddComponent<BRigidBody>();
+            rigidBody.mass = mesh.physics.mass;
+            Debug.Log("Mass: " + mesh.physics.mass.ToString());
+            rigidBody.friction = 1f;
+            ((RigidBody)rigidBody.GetCollisionObject()).ActivationState = ActivationState.DisableDeactivation;
+
+            foreach (BRigidBody rb in MainObject.transform.parent.GetComponentsInChildren<BRigidBody>())
+                rigidBody.GetCollisionObject().SetIgnoreCollisionCheck(rb.GetCollisionObject(), true);
         }
 
-        physicalProperties = mesh.physics;
+        //if (this.HasDriverMeta<WheelDriverMeta>())
+        //{
+        //    CreateWheel();
+        //}
+        //else
+        //{
+        //    BMultiHullShape hullShape = MainObject.AddComponent<BMultiHullShape>();
 
-        BRigidBody rigidBody = MainObject.AddComponent<BRigidBody>();
-        rigidBody.mass = mesh.physics.mass;
-        rigidBody.friction = 1f;
+        //    foreach (Mesh collider in colliders)
+        //    {
+        //        ConvexHullShape hull = new ConvexHullShape(Array.ConvertAll(collider.vertices, x => x.ToBullet()), collider.vertices.Length);
+        //        hull.Margin = 0f;
+        //        hullShape.AddHullShape(hull, BulletSharp.Math.Matrix.Translation(-ComOffset.ToBullet()));
+        //    }
+        //}
 
-        if (this.HasDriverMeta<WheelDriverMeta>())
-            UpdateWheelRigidBody();
+        //physicalProperties = mesh.physics;
 
-        foreach (BRigidBody rb in MainObject.transform.parent.GetComponentsInChildren<BRigidBody>())
-        {
-            rigidBody.GetCollisionObject().SetIgnoreCollisionCheck(rb.GetCollisionObject(), true);
-        }
+        //BRigidBody rigidBody = MainObject.AddComponent<BRigidBody>();
+        //rigidBody.mass = mesh.physics.mass;
+        //rigidBody.friction = 1f;
 
-        if (this.HasDriverMeta<WheelDriverMeta>())
-            UpdateWheelMass(); // 'tis a wheel, so needs more mass for joints to work correctly.
+        //if (this.HasDriverMeta<WheelDriverMeta>())
+        //    UpdateWheelRigidBody();
+
+        //foreach (BRigidBody rb in MainObject.transform.parent.GetComponentsInChildren<BRigidBody>())
+        //{
+        //    rigidBody.GetCollisionObject().SetIgnoreCollisionCheck(rb.GetCollisionObject(), true);
+        //}
+
+        //if (this.HasDriverMeta<WheelDriverMeta>())
+        //    UpdateWheelMass(); // 'tis a wheel, so needs more mass for joints to work correctly.
 
         #region Free mesh
         foreach (var list in new List<BXDAMesh.BXDASubMesh>[] { mesh.meshes, mesh.colliders })

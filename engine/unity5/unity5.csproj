@@ -209,6 +209,9 @@
     <Compile Include="Assets\LocalizationHelper.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BHingedConstraintEx.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BMultiHullShape.cs" />
+    <Compile Include="Assets\Scripts\BUExtensions\BRaycastVehicle.cs" />
+    <Compile Include="Assets\Scripts\BUExtensions\BRaycastWheel.cs" />
+    <Compile Include="Assets\Scripts\BUExtensions\BVehicleRaycaster.cs" />
     <Compile Include="Assets\Scripts\BXDExtensions.cs" />
     <Compile Include="Assets\Scripts\DriveJoints.cs" />
     <Compile Include="Assets\Scripts\Driver Practice Mode\Interactor.cs" />

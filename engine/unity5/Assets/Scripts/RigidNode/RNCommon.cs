@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using BulletUnity;
+using BulletSharp;
 
 public partial class RigidNode : RigidNode_Base
 {

@@ -5,13 +5,14 @@ using System.Text;
 using UnityEngine;
 using BulletUnity;
 using BulletSharp;
+using Assets.Scripts.BUExtensions;
 
 public class DriveJoints : MonoBehaviour
 {
     private const float SPEED_ARROW_PWM = 0.5f;
     private const float WHEEL_MAX_SPEED = 300f;
     private const float WHEEL_MOTOR_IMPULSE = 0.1f;
-    private const float WHEEL_COAST_FRICTION = 0.025f;
+    private const float WHEEL_COAST_FRICTION = 0.01f;
 
     private const float HINGE_MAX_SPEED = 4f;
     private const float HINGE_MOTOR_IMPULSE = 10f;
@@ -114,7 +115,17 @@ public class DriveJoints : MonoBehaviour
             {
                 RigidNode rigidNode = (RigidNode)node;
 
-                if (rigidNode.GetSkeletalJoint() != null && rigidNode.GetSkeletalJoint().cDriver != null)
+                BRaycastWheel raycastWheel = rigidNode.MainObject.GetComponent<BRaycastWheel>();
+
+                if (raycastWheel != null)
+                {
+                    if (rigidNode.GetSkeletalJoint().cDriver.portA == i + 1)
+                    {
+                        raycastWheel.ApplyForce(pwm[i]);
+                    }
+                }
+
+                if (rigidNode.GetSkeletalJoint() != null && rigidNode.GetSkeletalJoint().cDriver != null && rigidNode.MainObject.GetComponent<BHingedConstraint>() != null)
                 {
                     if (rigidNode.GetSkeletalJoint().cDriver.GetDriveType().IsMotor())
                     {

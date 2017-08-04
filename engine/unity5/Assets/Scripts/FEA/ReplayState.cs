@@ -75,7 +75,6 @@ namespace Assets.Scripts.FEA
         private string robotPath;
 
         private float rewindTime;
-        private float playbackSpeed;
         private float sliderPos;
         private float contactThreshold;
 
@@ -259,7 +258,6 @@ namespace Assets.Scripts.FEA
             }
 
             rewindTime = 0.0f;
-            playbackSpeed = 1.0f;
         }
 
         /// <summary>
@@ -386,7 +384,7 @@ namespace Assets.Scripts.FEA
 
                             if (collisionPoint.z > 0.0f)
                             {
-                                Rect circleRect = new Rect(collisionPoint.x - CircleRadius, Screen.height - (collisionPoint.y - CircleRadius),
+                                Rect circleRect = new Rect(collisionPoint.x - CircleRadius, Screen.height - (collisionPoint.y + CircleRadius),
                                     CircleRadius * 2, CircleRadius * 2);
 
                                 bool shouldActivate = false;
@@ -490,22 +488,22 @@ namespace Assets.Scripts.FEA
             switch (playbackMode)
             {
                 case PlaybackMode.Rewind:
-                    rewindTime += Time.smoothDeltaTime * playbackSpeed;
+                    rewindTime += Time.deltaTime;
                     break;
                 case PlaybackMode.Play:
-                    rewindTime -= Time.smoothDeltaTime * playbackSpeed;
+                    rewindTime -= Time.deltaTime;
                     break;
             }
 
             if (Input.GetKey(KeyCode.LeftArrow))
             {
-                rewindTime += Time.smoothDeltaTime * 0.25f;
+                rewindTime += Time.deltaTime * (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) ? 0.05f : 0.25f);
                 playbackMode = PlaybackMode.Paused;
             }
 
             if (Input.GetKey(KeyCode.RightArrow))
             {
-                rewindTime -= Time.smoothDeltaTime * 0.25f;
+                rewindTime -= Time.deltaTime * (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) ? 0.05f : 0.25f);
                 playbackMode = PlaybackMode.Paused;
             }
 

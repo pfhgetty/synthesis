@@ -123,7 +123,7 @@ namespace Assets.Scripts.BUExtensions
                     Debug.LogError("Constraint could not get bullet RigidBody from target rigid body");
                     return false;
                 }
-
+                
                 m_constraintPtr = new HingeConstraint(rba, rbb, m_localConstraintPoint.ToBullet(),
                     m_otherRigidBody.transform.InverseTransformPoint(transform.TransformPoint(m_localConstraintPoint)).ToBullet(),
                     m_axisInA.ToBullet(), m_axisInB.ToBullet());
