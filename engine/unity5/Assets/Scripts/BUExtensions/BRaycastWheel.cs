@@ -21,6 +21,10 @@ namespace Assets.Scripts.BUExtensions
         private const float VerticalOffset = 0.1f;
         private const float SimTorque = 2.42f;
 
+        /// <summary>
+        /// Creates a wheel and attaches it to the parent BRaycastVehicle.
+        /// </summary>
+        /// <param name="node"></param>
         public void CreateWheel(RigidNode node)
         {
             this.node = node;
@@ -45,16 +49,26 @@ namespace Assets.Scripts.BUExtensions
             wheelIndex = vehicle.AddWheel(basePoint, axis.normalized.ToBullet(), VerticalOffset, radius);
         }
 
+        /// <summary>
+        /// Applies the given force to the wheel.
+        /// </summary>
+        /// <param name="force"></param>
         public void ApplyForce(float force)
         {
             vehicle.RaycastVehicle.ApplyEngineForce(-force * (SimTorque / radius), wheelIndex);
         }
 
+        /// <summary>
+        /// Initializes the BRaycastWheel.
+        /// </summary>
         private void Awake()
         {
             wheelIndex = -1;
         }
 
+        /// <summary>
+        /// Updates the position of the wheel according to the BRaycastVehicle's position and speed.
+        /// </summary>
         private void Update()
         {
             if (vehicle == null)

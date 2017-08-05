@@ -12,11 +12,22 @@ namespace Assets.Scripts.BUExtensions
     {
         protected DynamicsWorld dynamicsWorld;
 
+        /// <summary>
+        /// Initializes a new BVehicleRaycaster.
+        /// </summary>
+        /// <param name="world"></param>
         public BVehicleRaycaster(DynamicsWorld world)
         {
             dynamicsWorld = world;
         }
 
+        /// <summary>
+        /// Finds the nearest RigidBody that doesn't belong to the robot.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public object CastRay(ref Vector3 from, ref Vector3 to, VehicleRaycasterResult result)
         {
             AllHitsRayResultCallback rayCallback = new AllHitsRayResultCallback(from, to);

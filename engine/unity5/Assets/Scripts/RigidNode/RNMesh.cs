@@ -67,7 +67,7 @@ public partial class RigidNode : RigidNode_Base
             BRigidBody rigidBody = MainObject.AddComponent<BRigidBody>();
             rigidBody.mass = mesh.physics.mass;
             Debug.Log("Mass: " + mesh.physics.mass.ToString());
-            rigidBody.friction = 1f;
+            rigidBody.friction = 0.25f;
             ((RigidBody)rigidBody.GetCollisionObject()).ActivationState = ActivationState.DisableDeactivation;
 
             foreach (BRigidBody rb in MainObject.transform.parent.GetComponentsInChildren<BRigidBody>())
