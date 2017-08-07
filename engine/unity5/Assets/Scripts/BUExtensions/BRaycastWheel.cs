@@ -12,7 +12,7 @@ namespace Assets.Scripts.BUExtensions
     {
         private RigidNode node;
         private Vector3 axis;
-        private BRaycastVehicle vehicle;
+        private BRaycastRobot vehicle;
         private BulletSharp.Math.Vector3 basePoint;
         private float radius;
 
@@ -30,7 +30,7 @@ namespace Assets.Scripts.BUExtensions
             this.node = node;
 
             RigidNode parent = (RigidNode)node.GetParent();
-            vehicle = parent.MainObject.GetComponent<BRaycastVehicle>();
+            vehicle = parent.MainObject.GetComponent<BRaycastRobot>();
 
             if (vehicle == null)
             {
@@ -42,11 +42,14 @@ namespace Assets.Scripts.BUExtensions
 
             RotationalJoint_Base joint = (RotationalJoint_Base)node.GetSkeletalJoint();
             axis = joint.axis.AsV3();
-            radius = node.GetDriverMeta<WheelDriverMeta>().radius * 0.01f;
+
+            WheelDriverMeta driverMeta = node.GetDriverMeta<WheelDriverMeta>();
+
+            radius = driverMeta.radius * 0.01f;
 
             basePoint = (node.MainObject.transform.localPosition - parent.ComOffset).ToBullet() + new BulletSharp.Math.Vector3(0f, VerticalOffset, 0f);
 
-            wheelIndex = vehicle.AddWheel(basePoint, axis.normalized.ToBullet(), VerticalOffset, radius);
+            wheelIndex = vehicle.AddWheel(driverMeta.type, basePoint, axis.normalized.ToBullet(), VerticalOffset, radius);
         }
 
         /// <summary>
@@ -55,7 +58,7 @@ namespace Assets.Scripts.BUExtensions
         /// <param name="force"></param>
         public void ApplyForce(float force)
         {
-            vehicle.RaycastVehicle.ApplyEngineForce(-force * (SimTorque / radius), wheelIndex);
+            vehicle.RaycastRobot.ApplyEngineForce(-force * (SimTorque / radius), wheelIndex);
         }
 
         /// <summary>
@@ -77,10 +80,14 @@ namespace Assets.Scripts.BUExtensions
             Vector3 velocity = ((RigidBody)transform.parent.GetComponent<BRigidBody>().GetCollisionObject()).GetVelocityInLocalPoint(basePoint).ToUnity();
             Vector3 localVelocity = transform.parent.InverseTransformDirection(velocity);
 
-            WheelInfo wheelInfo = vehicle.RaycastVehicle.GetWheelInfo(wheelIndex);
+            WheelInfo wheelInfo = vehicle.RaycastRobot.GetWheelInfo(wheelIndex);
+            Vector3 wheelAxle = wheelInfo.WheelAxleCS.ToUnity();
+
             transform.position = wheelInfo.WorldTransform.Origin.ToUnity();
-            transform.localRotation *= Quaternion.AngleAxis(-Vector3.Dot(localVelocity, Quaternion.AngleAxis(90f, Vector3.up) * axis) *
-                MathfExt.RADIANS_TO_DEG / (radius * Mathf.PI), axis);
+            transform.localRotation *= Quaternion.AngleAxis(-Vector3.Dot(localVelocity,
+                Quaternion.AngleAxis(90f, Vector3.up) * wheelAxle / (Mathf.PI * radius)), axis);
+
+            Debug.DrawLine(transform.position, transform.position + transform.parent.TransformDirection(wheelInfo.WheelAxleCS.ToUnity()) * 0.1f, Color.red);
         }
     }
 }

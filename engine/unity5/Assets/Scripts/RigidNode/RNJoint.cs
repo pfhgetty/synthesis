@@ -22,7 +22,7 @@ public partial class RigidNode : RigidNode_Base
     {
         if (GetParent() == null)
         {
-            MainObject.AddComponent<BRaycastVehicle>();
+            MainObject.AddComponent<BRaycastRobot>();
             return;
         }
 
@@ -35,15 +35,6 @@ public partial class RigidNode : RigidNode_Base
 
                 RotationalJoint_Base rNode = (RotationalJoint_Base)GetSkeletalJoint();
                 Vector3 rAxis = rNode.axis.AsV3().normalized;
-
-                //if (this.HasDriverMeta<WheelDriverMeta>())
-                //{
-                //    //OrientWheelNormals();
-                //    ((RigidNode)GetParent()).MainObject.GetComponent<BRaycastVehicle>().AddWheel(
-                //        MainObject.transform.position.ToBullet() - ((RigidNode)GetParent()).MainObject.transform.position.ToBullet() - (rNode.basePoint.AsV3() - ComOffset).ToBullet(),
-                //        rAxis.ToBullet(), 0.25f);
-                //    return;
-                //}
 
                 BHingedConstraintEx hc = (BHingedConstraintEx)(joint = ConfigJoint<BHingedConstraintEx>(rNode.basePoint.AsV3() - ComOffset, rNode.axis.AsV3(), AxisType.X));             
 
@@ -64,7 +55,7 @@ public partial class RigidNode : RigidNode_Base
                 CylindricalJoint_Base cNode = (CylindricalJoint_Base)GetSkeletalJoint();
 
                 B6DOFConstraint bc = (B6DOFConstraint)(joint = ConfigJoint<B6DOFConstraint>(cNode.basePoint.AsV3() - ComOffset, cNode.axis.AsV3(), AxisType.X));
-
+                
                 bc.linearLimitLower = new Vector3(cNode.linearLimitStart * 0.01f, 0f, 0f);
                 bc.linearLimitUpper = new Vector3(cNode.linearLimitEnd * 0.01f, 0f, 0f);
 
