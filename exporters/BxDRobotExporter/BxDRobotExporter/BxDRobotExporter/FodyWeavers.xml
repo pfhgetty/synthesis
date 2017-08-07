@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Weavers>
+  <Costura>
+    <IncludeAssemblies>
+      EditorsLibrary
+      OGLViewer
+      OpenTK
+      OpenTK.GLControl
+      SimulatorAPI
+      Inventor_Exporter
+    </IncludeAssemblies>
+  </Costura>
+</Weavers>
