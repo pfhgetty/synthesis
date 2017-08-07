@@ -7,6 +7,7 @@
       OpenTK.GLControl
       OGLViewer
       SimulatorAPI
+      MIConvexHull
     </IncludeAssemblies>
   </Costura>
 </Weavers>
