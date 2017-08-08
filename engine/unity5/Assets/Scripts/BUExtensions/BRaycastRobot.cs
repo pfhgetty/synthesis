@@ -15,14 +15,6 @@ namespace Assets.Scripts.BUExtensions
         private const float SuspensionStiffnessRatio = 30f;
         private const float RollingFriction = 0.0025f;
 
-        private enum MecanumPosition
-        {
-            FrontLeft = 2,
-            FrontRight = 1,
-            RearLeft = 3,
-            RearRight = 4
-        }
-
         private VehicleTuning vehicleTuning;
 
         /// <summary>
@@ -87,7 +79,7 @@ namespace Assets.Scripts.BUExtensions
                 FrictionSlip = 2f
             },
             (RigidBody)rigidBody.GetCollisionObject(),
-            new BVehicleRaycaster((DynamicsWorld)BPhysicsWorld.Get().world));
+            new BRobotRaycaster((DynamicsWorld)BPhysicsWorld.Get().world));
             
             RaycastRobot.SetCoordinateSystem(0, 1, 2);
         }

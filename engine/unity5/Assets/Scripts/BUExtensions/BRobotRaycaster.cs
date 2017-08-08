@@ -8,7 +8,7 @@ using BulletUnity;
 
 namespace Assets.Scripts.BUExtensions
 {
-    public class BVehicleRaycaster : IVehicleRaycaster
+    public class BRobotRaycaster : IVehicleRaycaster
     {
         protected DynamicsWorld dynamicsWorld;
 
@@ -16,7 +16,7 @@ namespace Assets.Scripts.BUExtensions
         /// Initializes a new BVehicleRaycaster.
         /// </summary>
         /// <param name="world"></param>
-        public BVehicleRaycaster(DynamicsWorld world)
+        public BRobotRaycaster(DynamicsWorld world)
         {
             dynamicsWorld = world;
         }

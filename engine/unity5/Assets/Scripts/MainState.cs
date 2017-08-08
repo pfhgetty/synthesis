@@ -658,7 +658,7 @@ public class MainState : SimState
                         continue;
 
                     ManifoldPoint mp = null;
-                    
+
                     int numContacts = contactManifold.NumContacts;
 
                     for (int k = 0; k < numContacts; k++)
@@ -681,8 +681,6 @@ public class MainState : SimState
                         Position = (mp.PositionWorldOnA + mp.PositionWorldOnB) * 0.5f,
                         RobotBody = obA.name.StartsWith("node") ? obA : obB
                     });
-
-                    contactManifold.Dispose();
                 }
 
                 contactPoints.Add(frameContacts);

@@ -211,7 +211,7 @@
     <Compile Include="Assets\Scripts\BUExtensions\BMultiHullShape.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BRaycastRobot.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\BRaycastWheel.cs" />
-    <Compile Include="Assets\Scripts\BUExtensions\BVehicleRaycaster.cs" />
+    <Compile Include="Assets\Scripts\BUExtensions\BRobotRaycaster.cs" />
     <Compile Include="Assets\Scripts\BUExtensions\RaycastRobot.cs" />
     <Compile Include="Assets\Scripts\BXDExtensions.cs" />
     <Compile Include="Assets\Scripts\DriveJoints.cs" />
