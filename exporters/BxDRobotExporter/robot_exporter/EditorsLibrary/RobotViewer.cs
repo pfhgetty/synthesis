@@ -274,7 +274,7 @@ namespace EditorsLibrary
         /// <summary>
         /// Select nodes that the mouse is hovering over
         /// </summary>
-        private void doSelect()
+        private void DoSelect()
         {
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, selectFBOHandle);
             GL.DrawBuffer((DrawBufferMode)FramebufferAttachment.ColorAttachment0Ext);
@@ -338,7 +338,7 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="sender">Object sending the event</param>
         /// <param name="e">Paint event arguments</param>
-        private void glControl1_Paint(object sender, PaintEventArgs e)
+        public void glControl1_Paint(object sender, PaintEventArgs e)
         {
             GL.Enable(EnableCap.Lighting);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -376,7 +376,7 @@ namespace EditorsLibrary
             GL.Light(LightName.Light1, LightParameter.Specular, l_specular);
             #endregion
 
-            doSelect();
+            DoSelect();
             renderInternal();
 
             // Overlay:

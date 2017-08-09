@@ -48,6 +48,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.buildLabel = new System.Windows.Forms.Label();
             this.synthesisBulletButton = new System.Windows.Forms.Button();
+            this.simulatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -80,7 +81,8 @@
             this.fieldExportToolStripMenuItem,
             this.jointsToolStripMenuItem,
             this.javaToolStripMenuItem,
-            this.driverstationToolStripMenuItem});
+            this.driverstationToolStripMenuItem,
+            this.simulatorToolStripMenuItem});
             this.tutorialsToolStripMenuItem.Name = "tutorialsToolStripMenuItem";
             resources.ApplyResources(this.tutorialsToolStripMenuItem, "tutorialsToolStripMenuItem");
             // 
@@ -176,6 +178,12 @@
             this.synthesisBulletButton.UseVisualStyleBackColor = true;
             this.synthesisBulletButton.Click += new System.EventHandler(this.synthesisBulletButton_Click);
             // 
+            // simulatorToolStripMenuItem
+            // 
+            this.simulatorToolStripMenuItem.Name = "simulatorToolStripMenuItem";
+            resources.ApplyResources(this.simulatorToolStripMenuItem, "simulatorToolStripMenuItem");
+            this.simulatorToolStripMenuItem.Click += new System.EventHandler(this.simulatorToolStripMenuItem_Click);
+            // 
             // LaunchForm
             // 
             resources.ApplyResources(this, "$this");
@@ -224,6 +232,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label buildLabel;
         private System.Windows.Forms.Button synthesisBulletButton;
+        private System.Windows.Forms.ToolStripMenuItem simulatorToolStripMenuItem;
     }
 }
 

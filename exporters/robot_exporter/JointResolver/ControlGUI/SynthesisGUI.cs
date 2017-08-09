@@ -55,7 +55,6 @@ public partial class SynthesisGUI : Form
         {
             return new OGL_RigidNode(guid);
         };
-
         fileNew.Click += new System.EventHandler(delegate(object sender, System.EventArgs e)
         {
             SetNew();

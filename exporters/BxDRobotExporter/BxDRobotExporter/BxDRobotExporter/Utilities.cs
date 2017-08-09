@@ -13,7 +13,7 @@ namespace BxDRobotExporter
     {
         //TODO: Maybe make less stuff static. Or just make it a singleton. 
         static internal SynthesisGUI GUI;
-        static DockableWindow EmbededViewer;
+        //static DockableWindow EmbededViewer;
         static DockableWindow EmbededJointPane;
         static DockableWindow EmbededBxDViewer;
 
@@ -28,19 +28,19 @@ namespace BxDRobotExporter
                 IntPtr[] children = CreateChildDialog();
 
                 UserInterfaceManager uiMan = app.UserInterfaceManager;
-                EmbededViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:EmbededLegacy0", "Robot Viewer");
+                //EmbededViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:EmbededLegacy0", "Robot Viewer");
                 EmbededJointPane = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:EmbededLegacy1", "Robot Joint Editor");
                 EmbededBxDViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:EmbededLegacy2", "Robot BxD Viewer");
 
-                #region EmbededViewer
-                if (EmbededViewer.IsCustomized)
-                    EmbededViewer.DockingState = DockingStateEnum.kDockLastKnown;
-                else
-                    EmbededViewer.DockingState = DockingStateEnum.kDockBottom;
-                EmbededViewer.ShowVisibilityCheckBox = true;
-                EmbededViewer.Visible = true;
-                EmbededViewer.ShowTitleBar = false;
-                EmbededViewer.AddChild(children[0]);
+                #region EmbededViewer (Inactive)
+                //if (EmbededViewer.IsCustomized)
+                //    EmbededViewer.DockingState = DockingStateEnum.kDockLastKnown;
+                //else
+                //    EmbededViewer.DockingState = DockingStateEnum.kDockBottom;
+                //EmbededViewer.ShowVisibilityCheckBox = true;
+                //EmbededViewer.Visible = true;
+                //EmbededViewer.ShowTitleBar = false;
+                //EmbededViewer.AddChild(children[0]);
                 #endregion
 
                 #region EmbededJointPane
@@ -51,7 +51,7 @@ namespace BxDRobotExporter
                 EmbededJointPane.ShowVisibilityCheckBox = true;
                 EmbededJointPane.Visible = true;
                 EmbededJointPane.ShowTitleBar = false;
-                EmbededJointPane.AddChild(children[1]);
+                EmbededJointPane.AddChild(children[0]);
                 #endregion
 
                 #region EmbededBxDViewer
@@ -64,7 +64,7 @@ namespace BxDRobotExporter
                 EmbededBxDViewer.SetMinimumSize(100, 100);
                 EmbededBxDViewer.Visible = true;
 
-                EmbededBxDViewer.AddChild(children[2]);
+                EmbededBxDViewer.AddChild(children[1]);
                 #endregion
             }
             catch (Exception e)
@@ -82,7 +82,7 @@ namespace BxDRobotExporter
                 GUI.Show();
                 GUI.Opacity = 1.00d;
 
-                return new IntPtr[] { GUI.robotViewer1.Handle, GUI.JointPaneForm.Handle, GUI.ViewerPaneForm.Handle };
+                return new IntPtr[] { /*GUI.robotViewer1.Handle, */GUI.JointPaneForm.Handle, GUI.ViewerPaneForm.Handle };
             }
             catch (Exception e)
             {
@@ -96,33 +96,33 @@ namespace BxDRobotExporter
         /// </summary>
         public static void DisposeDockableWindows()
         {
-            if (EmbededViewer != null && EmbededJointPane != null && EmbededBxDViewer != null)
+            if (/*EmbededViewer != null && */EmbededJointPane != null && EmbededBxDViewer != null)
             {
-                EmbededViewer.Visible = false;
-                EmbededViewer.Delete();
+                //EmbededViewer.Visible = false;
+                //EmbededViewer.Delete();
 
                 EmbededJointPane.Visible = false;
                 EmbededJointPane.Delete();
 
                 EmbededBxDViewer.Visible = false;
-                EmbededBxDViewer.Delete(); 
+                EmbededBxDViewer.Delete();
             }
         }
 
         public static void HideDockableWindows()
         {
-            if (EmbededViewer != null && EmbededJointPane != null && EmbededBxDViewer != null)
+            if (/*EmbededViewer != null &&*/ EmbededJointPane != null && EmbededBxDViewer != null)
             {
-                EmbededViewer.Visible = false;
+                //EmbededViewer.Visible = false;
                 EmbededJointPane.Visible = false;
                 EmbededBxDViewer.Visible = false;
             }
         }
         public static void ShowDockableWindows()
         {
-            if (EmbededViewer != null && EmbededJointPane != null && EmbededBxDViewer != null)
+            if (/*EmbededViewer != null && */EmbededJointPane != null && EmbededBxDViewer != null)
             {
-                EmbededViewer.Visible = true;
+                //EmbededViewer.Visible = true;
                 EmbededJointPane.Visible = true;
                 EmbededBxDViewer.Visible = true;
             }

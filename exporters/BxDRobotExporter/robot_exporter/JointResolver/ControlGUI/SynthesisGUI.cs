@@ -179,14 +179,17 @@ public partial class SynthesisGUI : Form
     {
         foreach (Form f in OwnedForms)
         {
-            f.Close();
+            if(f.Visible)
+                f.Close();
         }
         Close();
     }
 
     private void SynthesisGUI_Shown(object sender, EventArgs e)
     {
+        Hide();
         robotViewer1.Show();
+        robotViewer1.Hide();
         ViewerPaneForm.Show();
         JointPaneForm.Show();
     }

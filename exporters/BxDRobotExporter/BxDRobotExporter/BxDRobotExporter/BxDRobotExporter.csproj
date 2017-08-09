@@ -183,6 +183,8 @@
   <ItemGroup>
     <Content Include="AddSlotOption.ico" />
     <Content Include="Autodesk.BxDRobotExporter.Inventor.addin" />
+    <None Include="Images\ViewerSettings32.bmp" />
+    <None Include="Images\ViewerSettings16.bmp" />
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
@@ -190,8 +192,18 @@
     <Content Include="Images\EditDrivers32.bmp" />
     <Content Include="Images\EditLimits16.bmp" />
     <Content Include="Images\EditLimits32.bmp" />
+    <None Include="Images\ExporterSettings16.bmp" />
+    <None Include="Images\ExporterSettings32.bmp" />
+    <None Include="Images\ExportJoints16.bmp" />
+    <None Include="Images\ExportJoints32.bmp" />
+    <None Include="Images\ExportMeshes16.bmp" />
+    <None Include="Images\ExportMeshes32.bmp" />
     <Content Include="Images\ExportRobot16.bmp" />
     <Content Include="Images\ExportRobot32.bmp" />
+    <None Include="Images\Help16.bmp" />
+    <None Include="Images\Help32.bmp" />
+    <None Include="Images\LoadRobot16.bmp" />
+    <None Include="Images\LoadRobot32.bmp" />
     <Content Include="Images\SelectJointInsideJoint16.bmp" />
     <Content Include="Images\SelectJointInsideJoint32.bmp" />
     <Content Include="Images\StartRobotExporter16.bmp" />

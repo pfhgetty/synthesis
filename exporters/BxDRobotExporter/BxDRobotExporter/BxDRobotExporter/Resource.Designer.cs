@@ -103,6 +103,66 @@ namespace BxDRobotExporter {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ExporterSettings16 {
+            get {
+                object obj = ResourceManager.GetObject("ExporterSettings16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ExporterSettings32 {
+            get {
+                object obj = ResourceManager.GetObject("ExporterSettings32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ExportJoints16 {
+            get {
+                object obj = ResourceManager.GetObject("ExportJoints16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ExportJoints32 {
+            get {
+                object obj = ResourceManager.GetObject("ExportJoints32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ExportMeshes16 {
+            get {
+                object obj = ResourceManager.GetObject("ExportMeshes16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ExportMeshes32 {
+            get {
+                object obj = ResourceManager.GetObject("ExportMeshes32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ExportRobot16 {
             get {
                 object obj = ResourceManager.GetObject("ExportRobot16", resourceCulture);
@@ -116,6 +176,46 @@ namespace BxDRobotExporter {
         internal static System.Drawing.Bitmap ExportRobot32 {
             get {
                 object obj = ResourceManager.GetObject("ExportRobot32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Help16 {
+            get {
+                object obj = ResourceManager.GetObject("Help16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Help32 {
+            get {
+                object obj = ResourceManager.GetObject("Help32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap LoadRobot16 {
+            get {
+                object obj = ResourceManager.GetObject("LoadRobot16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap LoadRobot32 {
+            get {
+                object obj = ResourceManager.GetObject("LoadRobot32", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -206,6 +306,26 @@ namespace BxDRobotExporter {
         internal static System.Drawing.Bitmap TTLimitsDropdown {
             get {
                 object obj = ResourceManager.GetObject("TTLimitsDropdown", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ViewerSettings16 {
+            get {
+                object obj = ResourceManager.GetObject("ViewerSettings16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ViewerSettings32 {
+            get {
+                object obj = ResourceManager.GetObject("ViewerSettings32", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

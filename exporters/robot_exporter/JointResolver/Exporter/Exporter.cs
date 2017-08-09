@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 public class Exporter
 {
@@ -107,6 +108,8 @@ public class Exporter
         {
             node.ModelFileName = ((RigidNode)node).group.ToString();
             node.ModelFullID = node.GetModelID();
+            Console.WriteLine("Full Name: " + node.ModelFileName);
+            Console.WriteLine("Full ID: " + node.ModelFullID);
         }
 
         return baseNode;

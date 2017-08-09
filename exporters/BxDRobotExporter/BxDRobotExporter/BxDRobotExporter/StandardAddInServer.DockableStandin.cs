@@ -23,47 +23,54 @@ namespace BxDRobotExporter
         bool EnvironmentEnabled = false;
 
         //Makes sure that the application doesn't create a bunch of dockable windows. Nobody wants that crap.
-        bool FirstRun = true;
         bool HiddenExporter = false;
 
+        //Ribbon Pannels
         RibbonPanel FilePanel;
         RibbonPanel ExportPanel;
         RibbonPanel SettingsPanel;
         RibbonPanel HelpPanel;
 
-        ButtonDefinition LoadFromInventorButton;
+        //Buttons
+        ButtonDefinition LoadExportedRobotButton;
         ButtonDefinition ExportMeshesButton;
-        ButtonDefinition ExporterSettingsButton;
-        ButtonDefinition ViewerSettingsButton;
+        ButtonDefinition ExportJointsButton;
+        ButtonDefinition ExporterSettingsButton; //TODO: reimplement this whole mess.
         ButtonDefinition HelpButton;
 
         AssemblyDocument AsmDocument;
 
         #endregion
 
-        public void ActivateDockable(Inventor.ApplicationAddInSite AddInSiteObject, bool FirstTime)
+        public void ActivateDockable(ApplicationAddInSite AddInSiteObject, bool FirstTime)
         {
             MainApplication = AddInSiteObject.Application; //Gets the application object, which is used in many different ways throughout this whole process
             string ClientID = "{0c9a07ad-2768-4a62-950a-b5e33b88e4a3}"; //TBH I don't really know why this is a GUID but whatever.
             #region Load Images
-            stdole.IPictureDisp startExporterIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(BxDRobotExporter.Resource.StartRobotExporter16));
-            stdole.IPictureDisp startExporterIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(BxDRobotExporter.Resource.StartRobotExporter32));
+            stdole.IPictureDisp StartExporterIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.StartRobotExporter16));
+            stdole.IPictureDisp StartExporterIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.StartRobotExporter32));
 
-            stdole.IPictureDisp LoadFromInventorIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.StartRobotExporter16)); //Placeholder
-            stdole.IPictureDisp LoadFromInventorIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.StartRobotExporter32)); //Placeholder
+            stdole.IPictureDisp ExportMeshesIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExportMeshes16));
+            stdole.IPictureDisp ExportMeshesIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExportMeshes32));
 
-            stdole.IPictureDisp ExportMeshesIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExportRobot16)); //Placeholder
-            stdole.IPictureDisp ExportMeshesIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExportRobot32)); //Placeholder
+            stdole.IPictureDisp ExportJointsIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExportJoints16));
+            stdole.IPictureDisp ExportJointsIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExportJoints32));
 
-            stdole.IPictureDisp ExporterSettingsIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.EditDrivers16)); //Placeholder
-            stdole.IPictureDisp ExporterSettingsIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.EditDrivers32)); //Placeholder
+            stdole.IPictureDisp ExporterSettingsIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExporterSettings16));
+            stdole.IPictureDisp ExporterSettingsIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExporterSettings32));
 
-            stdole.IPictureDisp ViewerSettingsIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.EditDrivers32)); //Placeholder
-            stdole.IPictureDisp ViewerSettingsIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.EditDrivers32)); //Placeholder
+            stdole.IPictureDisp ViewerSettingsIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ViewerSettings16));
+            stdole.IPictureDisp ViewerSettingsIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ViewerSettings32));
+
+            stdole.IPictureDisp HelpButtonIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.Help16));
+            stdole.IPictureDisp HelpButtonIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.Help32));
+
+            stdole.IPictureDisp LoadExportedRobotSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.LoadRobot16));
+            stdole.IPictureDisp LoadExportedRobotLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.LoadRobot32));
             #endregion
             #region UI Creation
             Environments environments = MainApplication.UserInterfaceManager.Environments;
-            ExporterEnv = environments.Add("Robot Exporter", "BxD:RobotExporter:Environment", null, startExporterIconSmall, startExporterIconLarge);
+            ExporterEnv = environments.Add("Robot Exporter", "BxD:RobotExporter:Environment", null, StartExporterIconSmall, StartExporterIconLarge);
 
             Ribbon assemblyRibbon = MainApplication.UserInterfaceManager.Ribbons["Assembly"];
             RibbonTab ExporterTab = assemblyRibbon.RibbonTabs.Add("Robot Exporter", "BxD:RobotExporter:RobotExporterTab", ClientID, "", false, true);
@@ -75,11 +82,11 @@ namespace BxDRobotExporter
             SettingsPanel = ExporterTab.RibbonPanels.Add("Settings", "BxD:RobotExporter:SettingsPanel", ClientID);
             HelpPanel = ExporterTab.RibbonPanels.Add("Help", "BxD:RobotExporter:HelpPanel", ClientID);
 
-            //Load From Inventor
-            LoadFromInventorButton = ControlDefs.AddButtonDefinition("Open Exported Mesh", "BxD:RobotExporter:OpenExportedMesh", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, LoadFromInventorIconSmall, LoadFromInventorIconLarge);
-            LoadFromInventorButton.OnExecute += OpenExportedMesh_OnExecute;
-            LoadFromInventorButton.OnHelp += _OnHelp;
-            FilePanel.CommandControls.AddButton(LoadFromInventorButton, true);
+            //Load Exported Robot
+            LoadExportedRobotButton = ControlDefs.AddButtonDefinition("Load Exported Robot", "BxD:RobotExporter:LoadExportedRobot", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ExportMeshesIconSmall, ExportMeshesIconLarge);
+            LoadExportedRobotButton.OnExecute += LoadExportedRobotButton_OnExecute;
+            LoadExportedRobotButton.OnHelp += _OnHelp;
+            FilePanel.CommandControls.AddButton(LoadExportedRobotButton, true);
 
             //Export Meshes
             ExportMeshesButton = ControlDefs.AddButtonDefinition("Export Meshes", "BxD:RobotExporter:ExportMeshes", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ExportMeshesIconSmall, ExportMeshesIconLarge);
@@ -87,20 +94,26 @@ namespace BxDRobotExporter
             ExportMeshesButton.OnHelp += _OnHelp;
             ExportPanel.CommandControls.AddButton(ExportMeshesButton, true);
 
+            //Export Joints
+            ExportJointsButton = ControlDefs.AddButtonDefinition("Export Joints", "BxD:RobotExporter:ExportJoints", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ExportJointsIconSmall, ExportJointsIconLarge);
+            ExportJointsButton.OnExecute += ExportJointsButton_OnExecute;
+            ExportMeshesButton.OnHelp += _OnHelp;
+            ExportPanel.CommandControls.AddButton(ExportJointsButton, true);
+
             //Exporter Settings
             ExporterSettingsButton = ControlDefs.AddButtonDefinition("Exporter Settings", "BxD:RobotExporter:ExporterSettings", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ExporterSettingsIconLarge, ExporterSettingsIconLarge);
             ExporterSettingsButton.OnExecute += ExporterSettings_OnExecute;
             ExporterSettingsButton.OnHelp += _OnHelp;
             SettingsPanel.CommandControls.AddButton(ExporterSettingsButton, true);
 
-            //Viewer Settings
-            ViewerSettingsButton = ControlDefs.AddButtonDefinition("Viewer Settings", "BxD:RobotExporter:ViewerSettings", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ViewerSettingsIconSmall, ViewerSettingsIconLarge);
-            ViewerSettingsButton.OnExecute += ViewerSettings_OnExecute;
-            ViewerSettingsButton.OnHelp += _OnHelp;
-            SettingsPanel.CommandControls.AddButton(ViewerSettingsButton, true);
+            ////Viewer Settings
+            //ViewerSettingsButton = ControlDefs.AddButtonDefinition("Viewer Settings", "BxD:RobotExporter:ViewerSettings", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ViewerSettingsIconSmall, ViewerSettingsIconLarge);
+            //ViewerSettingsButton.OnExecute += ViewerSettings_OnExecute;
+            //ViewerSettingsButton.OnHelp += _OnHelp;
+            //SettingsPanel.CommandControls.AddButton(ViewerSettingsButton, true);
 
             //Help Button
-            HelpButton = ControlDefs.AddButtonDefinition("Help", "BxD:RobotExporter:Help", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ViewerSettingsIconSmall, ViewerSettingsIconLarge);
+            HelpButton = ControlDefs.AddButtonDefinition("Help", "BxD:RobotExporter:Help", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, HelpButtonIconSmall, HelpButtonIconLarge);
             HelpButton.OnExecute += HelpButton_OnExecute;
             HelpButton.OnHelp += _OnHelp;
             HelpPanel.CommandControls.AddButton(HelpButton, true);
@@ -117,6 +130,7 @@ namespace BxDRobotExporter
             MainApplication.ApplicationEvents.OnDeactivateDocument += ApplicationEvents_OnDeactivateDocument;
             #endregion
         }
+
 
         private void ApplicationEvents_OnDeactivateDocument(_Document DocumentObject, EventTimingEnum BeforeOrAfter, NameValueMap Context, out HandlingCodeEnum HandlingCode)
         {
@@ -186,10 +200,10 @@ namespace BxDRobotExporter
             Process.Start("http://bxd.autodesk.com/tutorials.html");
         }
 
-        private void ViewerSettings_OnExecute(NameValueMap Context)
-        {
-            Utilities.GUI.SettingsViewer_OnClick(this, null);
-        }
+        //private void ViewerSettings_OnExecute(NameValueMap Context)
+        //{
+        //    Utilities.GUI.SettingsViewer_OnClick(this, null);
+        //}
 
         private void ExporterSettings_OnExecute(NameValueMap Context)
         {
@@ -198,12 +212,17 @@ namespace BxDRobotExporter
 
         private void ExportMeshes_OnExecute(NameValueMap Context)
         {
-            Utilities.GUI.FileLoad_OnClick(null, null);
+            Utilities.GUI.LoadFromInventor();
         }
 
-        private void OpenExportedMesh_OnExecute(NameValueMap Context)
+        private void LoadExportedRobotButton_OnExecute(NameValueMap Context)
         {
             Utilities.GUI.OpenExisting();
+        }
+
+        private void ExportJointsButton_OnExecute(NameValueMap Context)
+        {
+            Utilities.GUI.SaveRobot(true);
         }
 
         /// <summary>
@@ -240,7 +259,6 @@ namespace BxDRobotExporter
         private void StartExporter()
         {
             AsmDocument = (AssemblyDocument)MainApplication.ActiveDocument;
-
             Utilities.CreateDockableWindows(MainApplication);
         }
         private void EndExporter()

@@ -8,9 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Inventor;
+using System.Diagnostics;
 
 public partial class NodeEditorPane : UserControl
 {
+
+    
 
     List<RigidNode_Base> nodes;
 

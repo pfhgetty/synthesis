@@ -50,7 +50,7 @@ namespace BxDFieldExporter
         static ButtonDefinition exportField;
         static ButtonDefinition removeComponent;
         static ButtonDefinition ContextDelete;
-        Inventor.Environment oNewEnv;
+        Inventor.Environment FieldExporterEnvironment;
         static bool done;
         static bool cancel = false;
         static Random rand;// random number genator that can create internal ids
@@ -103,7 +103,7 @@ namespace BxDFieldExporter
                 UIEvent.OnContextMenu += UIEvent_OnContextMenu;
 				InventorApplication.ApplicationEvents.OnActivateDocument += ApplicationEvents_OnActivateDocument;
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }
@@ -189,15 +189,15 @@ namespace BxDFieldExporter
         {
             if(DocumentObject is PartDocument doc)
             {
-                doc.DisabledCommandList.Add(MainApplication.CommandManager.ControlDefinitions["BxD:RobotExporter:Environment"]);
+                doc.DisabledCommandList.Add(InventorApplication.CommandManager.ControlDefinitions["BxD:RobotExporter:Environment"]);
             }
             else if (DocumentObject is PresentationDocument doc1)
             {
-                doc1.DisabledCommandList.Add(MainApplication.CommandManager.ControlDefinitions["BxD:RobotExporter:Environment"]);
+                doc1.DisabledCommandList.Add(InventorApplication.CommandManager.ControlDefinitions["BxD:RobotExporter:Environment"]);
             }
             else if (DocumentObject is DrawingDocument doc2)
             {
-                doc2.DisabledCommandList.Add(MainApplication.CommandManager.ControlDefinitions["BxD:RobotExporter:Environment"]);
+                doc2.DisabledCommandList.Add(InventorApplication.CommandManager.ControlDefinitions["BxD:RobotExporter:Environment"]);
             }
             HandlingCode = HandlingCodeEnum.kEventNotHandled;
         }
@@ -281,12 +281,12 @@ namespace BxDFieldExporter
         // called when the environments switch
         public void OnEnvironmentChange(Inventor.Environment environment, EnvironmentStateEnum EnvironmentState, EventTimingEnum BeforeOrAfter, NameValueMap Context, out HandlingCodeEnum HandlingCode)
         {
-            if (environment.Equals(oNewEnv) && EnvironmentState.Equals(EnvironmentStateEnum.kActivateEnvironmentState) && !closing)
+            if (environment.Equals(FieldExporterEnvironment) && EnvironmentState.Equals(EnvironmentStateEnum.kActivateEnvironmentState) && !closing)
             {
                 closing = true;
                 startExport_OnExecute(null);
             }
-            else if (environment.Equals(oNewEnv) && EnvironmentState.Equals(EnvironmentStateEnum.kTerminateEnvironmentState) && closing)
+            else if (environment.Equals(FieldExporterEnvironment) && EnvironmentState.Equals(EnvironmentStateEnum.kTerminateEnvironmentState) && closing)
             {
                 closing = false;
                 //cancelExporter_OnExecute(null);
@@ -298,7 +298,6 @@ namespace BxDFieldExporter
         {
             try
             {
-
                 #region Make Icons
                 stdole.IPictureDisp startExporterIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(BxDFieldExporter.Resource.StartExporter16));
                 stdole.IPictureDisp startExporterIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(BxDFieldExporter.Resource.StartExporter32));
@@ -338,27 +337,27 @@ namespace BxDFieldExporter
                 #endregion
 
                 // Get the Environments collection
-                Environments oEnvironments = InventorApplication.UserInterfaceManager.Environments;
+                Environments environments = InventorApplication.UserInterfaceManager.Environments;
 
                 // Create a new environment
-                oNewEnv = oEnvironments.Add("Field Exporter", "BxD:FieldExporter:Environment", null, startExporterIconSmall, startExporterIconLarge);
+                FieldExporterEnvironment = environments.Add("Field Exporter", "BxD:FieldExporter:Environment", null, startExporterIconSmall, startExporterIconLarge);
 
                 // Get the ribbon associated with the assembly environment
-                Ribbon oAssemblyRibbon = InventorApplication.UserInterfaceManager.Ribbons["Assembly"];
+                Ribbon assemblyRibbon = InventorApplication.UserInterfaceManager.Ribbons["Assembly"];
 
                 // Create contextual tabs and panels within them
-                #region Create Buttons
-                RibbonTab oContextualTabOne = oAssemblyRibbon.RibbonTabs.Add("Field Exporter", "BxD:FieldExporter:RibbonTab", "ClientId123", "", false, true);
-                ComponentControls = oContextualTabOne.RibbonPanels.Add("Component Controls", "BxD:FieldExporter:ComponentControls", "{e50be244-9f7b-4b94-8f87-8224faba8ca1}");
-                AddItems = oContextualTabOne.RibbonPanels.Add("Add Items", "BxD:FieldExporter:AddItems", "{e50be244-9f7b-4b94-8f87-8224faba8ca1}");
+                #region Create Environment
+                RibbonTab contextualTabOne = assemblyRibbon.RibbonTabs.Add("Field Exporter", "BxD:FieldExporter:RibbonTab", "ClientId123", "", false, true);
+                ComponentControls = contextualTabOne.RibbonPanels.Add("Component Controls", "BxD:FieldExporter:ComponentControls", "{e50be244-9f7b-4b94-8f87-8224faba8ca1}");
+                AddItems = contextualTabOne.RibbonPanels.Add("Add Items", "BxD:FieldExporter:AddItems", "{e50be244-9f7b-4b94-8f87-8224faba8ca1}");
                 AddItems.Reposition("BxD:FieldExporter:ComponentControls", false);
-                RemoveItems = oContextualTabOne.RibbonPanels.Add("Remove Items", "BxD:FieldExporter:RemoveItems", "{e50be244-9f7b-4b94-8f87-8224faba8ca1}");
+                RemoveItems = contextualTabOne.RibbonPanels.Add("Remove Items", "BxD:FieldExporter:RemoveItems", "{e50be244-9f7b-4b94-8f87-8224faba8ca1}");
                 RemoveItems.Reposition("BxD:FieldExporter:AddItems", false);
-                ExporterControl = oContextualTabOne.RibbonPanels.Add("Robot Exporter Control", "BxD:FieldExporter:ExporterControl", "{e50be244-9f7b-4b94-8f87-8224faba8ca1}");// inits the part panels               
+                ExporterControl = contextualTabOne.RibbonPanels.Add("Robot Exporter Control", "BxD:FieldExporter:ExporterControl", "{e50be244-9f7b-4b94-8f87-8224faba8ca1}");// inits the part panels               
 
                 ControlDefinitions controlDefs = InventorApplication.CommandManager.ControlDefinitions;// get the controls for Inventor
                 beginExporter = controlDefs.AddButtonDefinition("Start Exporter", "BxD:FieldExporter:StartExporter", CommandTypesEnum.kNonShapeEditCmdType, m_ClientId, "Starts the field exporter", "Yay lets start!", startExporterIconSmall, startExporterIconLarge, ButtonDisplayEnum.kAlwaysDisplayText);
-                beginExporter.OnExecute += new ButtonDefinitionSink_OnExecuteEventHandler(startExport_OnExecute);
+                beginExporter.OnExecute += new ButtonDefinitionSink_OnExecuteEventHandler(startExport_OnExecute); 
 
                 addNewComponent = controlDefs.AddButtonDefinition(" Add New Component ", "BxD:FieldExporter:AddNewComponent", CommandTypesEnum.kNonShapeEditCmdType, m_ClientId, null, null, addNewComponentIconSmall, addNewComponentIconLarge, ButtonDisplayEnum.kAlwaysDisplayText);
                 addNewComponent.OnExecute += new ButtonDefinitionSink_OnExecuteEventHandler(AddNewComponent_OnExecute);
@@ -413,6 +412,7 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                     ttExportField, "Export Field");
                 #endregion
 
+
                 ContextDelete = controlDefs.AddButtonDefinition("Delete", "BxD:FieldExporter:ContextMenu:Delete", CommandTypesEnum.kNonShapeEditCmdType, m_ClientId);
                 ContextDelete.OnExecute += ContextDelete_OnExecute;
 
@@ -431,26 +431,26 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                 UIEvents.OnEnvironmentChange += enviroment_OnChangeEventDelegate;
 
                 // Make the "SomeAnalysis" tab default for the environment
-                oNewEnv.DefaultRibbonTab = "BxD:FieldExporter:RibbonTab";
+                FieldExporterEnvironment.DefaultRibbonTab = "BxD:FieldExporter:RibbonTab";
 
                 // Get the collection of parallel environments and add the new environment
                 EnvironmentList oParEnvs = InventorApplication.UserInterfaceManager.ParallelEnvironments;
 
-                oParEnvs.Add(oNewEnv);
+                oParEnvs.Add(FieldExporterEnvironment);
 
                 // Make the new parallel environment available only within the assembly environment
                 // A ControlDefinition is automatically created when an environment is added to the
                 // parallel environments list. The internal name of the definition is the same as
                 // the internal name of the environment.
-                ControlDefinition oParallelEnvButton = InventorApplication.CommandManager.ControlDefinitions["BxD:FieldExporter:Environment"];
+                ControlDefinition parallelEnvButton = InventorApplication.CommandManager.ControlDefinitions["BxD:FieldExporter:Environment"];
 
                 Inventor.Environment oEnv;
-                oEnv = oEnvironments["BxD:FieldExporter:Environment"];
-                oEnv.DisabledCommandList.Add(oParallelEnvButton);
+                oEnv = environments["BxD:FieldExporter:Environment"];
+                oEnv.DisabledCommandList.Add(parallelEnvButton);
 
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }

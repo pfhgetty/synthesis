@@ -82,7 +82,7 @@ namespace SynthesisLauncher
                 if (dialogResult == DialogResult.Yes)
                 {
                     //do something
-                    Process.Start("http://bxd.autodesk.com/Downloadables/SynthesisBetaInstaller.exe");
+                    Process.Start("http://bxd.autodesk.com/Downloadables/Synthesis%20Installer.exe");
                     System.Environment.Exit(1);
                 }
             }
@@ -145,12 +145,12 @@ namespace SynthesisLauncher
 
         private void robotExportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start("http://bxd.autodesk.com/?page=tutorialRobotExporter");
+            Process.Start("http://bxd.autodesk.com/tutorial-robot.html");
         }
 
         private void fieldExportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start("http://bxd.autodesk.com/?page=tutorialFieldExporter");
+            Process.Start("http://bxd.autodesk.com/tutorial-field.html");
         }
 
         private void jointsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -160,12 +160,17 @@ namespace SynthesisLauncher
 
         private void javaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start("http://bxd.autodesk.com/?page=tutorialCompileJava");
+            Process.Start("http://bxd.autodesk.com/tutorial-java.html");
         }
 
         private void driverstationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start("http://bxd.autodesk.com/?page=tutorialDriverStation");
+            Process.Start("http://bxd.autodesk.com/tutorial-driverstation.html");
+        }
+
+        private void simulatorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("http://bxd.autodesk.com/tutorial-sim.html");
         }
     }
 }
