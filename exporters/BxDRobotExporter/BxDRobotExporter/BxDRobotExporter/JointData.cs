@@ -47,7 +47,7 @@ namespace BxDRobotExporter {
             jointOfType = joint;
             try
             {
-                ReferenceKeyManager refKeyMgr = StandardAddInServer.MainApplication.ActiveDocument.ReferenceKeyManager;
+                ReferenceKeyManager refKeyMgr = StandardAddInServer.InventorApplication.ActiveDocument.ReferenceKeyManager;
                 byte[] refKey = new byte[0];
                 joint.GetReferenceKey(ref refKey, 0);
                 RefKey = refKeyMgr.KeyToString(refKey);

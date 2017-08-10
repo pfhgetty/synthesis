@@ -23,16 +23,16 @@ public partial class SynthesisGUI : Form
 
     public static SynthesisGUI Instance;
 
-    public static ExporterSettingsForm.ExporterSettingsValues ExporterSettings;
+    public static ExporterSettingsForm.PluginSettingsValues ExporterSettings;
     public static ViewerSettingsForm.ViewerSettingsValues ViewerSettings;
 
     public Form ViewerPaneForm = new Form
     {
-        Size = new System.Drawing.Size(311, 587)
+        FormBorderStyle = FormBorderStyle.None
     };
     public Form JointPaneForm = new Form
     {
-        Size = new System.Drawing.Size(574, 193)
+        FormBorderStyle = FormBorderStyle.None
     };
 
     public RigidNode_Base SkeletonBase = null;
@@ -50,11 +50,11 @@ public partial class SynthesisGUI : Form
 
 
         BXDSettings.Load();
-        object exportSettings = BXDSettings.Instance.GetSettingsObject("Exporter Settings");
+        object exportSettings = BXDSettings.Instance.GetSettingsObject("Plugin Settings");
         object viewSettings = BXDSettings.Instance.GetSettingsObject("Viewer Settings");
 
         ExporterSettings = (exportSettings != null) ?
-                           (ExporterSettingsForm.ExporterSettingsValues)exportSettings : ExporterSettingsForm.GetDefaultSettings();
+                           (ExporterSettingsForm.PluginSettingsValues)exportSettings : ExporterSettingsForm.GetDefaultSettings();
         ViewerSettings = (viewSettings != null) ? (ViewerSettingsForm.ViewerSettingsValues)viewSettings : ViewerSettingsForm.GetDefaultSettings();
     }
 
@@ -468,15 +468,13 @@ public partial class SynthesisGUI : Form
 
     public void SettingsExporter_OnClick(object sender, System.EventArgs e)
     {
-        var defaultValues = BXDSettings.Instance.GetSettingsObject("Exporter Settings");
-
-        ExporterSettingsForm eSettingsForm = new ExporterSettingsForm((defaultValues != null) ? (ExporterSettingsForm.ExporterSettingsValues)defaultValues :
-            ExporterSettingsForm.GetDefaultSettings());
+        //TODO: Implement Value saving and loading
+        ExporterSettingsForm eSettingsForm = new ExporterSettingsForm();
 
         eSettingsForm.ShowDialog(this);
 
-        BXDSettings.Instance.AddSettingsObject("Exporter Settings", eSettingsForm.values);
-        ExporterSettings = eSettingsForm.values;
+        BXDSettings.Instance.AddSettingsObject("Plugin Settings", ExporterSettingsForm.values);
+        ExporterSettings = ExporterSettingsForm.values;
     }
 
     public void SettingsViewer_OnClick(object sender, System.EventArgs e)
@@ -499,6 +497,4 @@ public partial class SynthesisGUI : Form
     {
         LoadFromInventor();
     }
-
-
 }

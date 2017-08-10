@@ -29,8 +29,8 @@ namespace BxDRobotExporter
 
                 UserInterfaceManager uiMan = app.UserInterfaceManager;
                 //EmbededViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:EmbededLegacy0", "Robot Viewer");
-                EmbededJointPane = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:EmbededLegacy1", "Robot Joint Editor");
-                EmbededBxDViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:EmbededLegacy2", "Robot BxD Viewer");
+                EmbededJointPane = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:JointEditor", "Robot Joint Editor");
+                EmbededBxDViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:BxDViewer", "Robot BxD Viewer");
 
                 #region EmbededViewer (Inactive)
                 //if (EmbededViewer.IsCustomized)
@@ -126,6 +126,11 @@ namespace BxDRobotExporter
                 EmbededJointPane.Visible = true;
                 EmbededBxDViewer.Visible = true;
             }
+        }
+
+        public static Inventor.Color GetInventorColor(System.Drawing.Color color)
+        {
+            return StandardAddInServer.MainApplication.TransientObjects.CreateColor(color.R, color.G, color.B);
         }
     }
 }

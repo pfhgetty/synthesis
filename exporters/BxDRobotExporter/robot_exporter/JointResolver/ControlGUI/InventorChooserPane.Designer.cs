@@ -37,7 +37,7 @@
             this.buttonAdd.TabIndex = 1;
             this.buttonAdd.Text = "Add from Inventor";
             this.buttonAdd.UseVisualStyleBackColor = true;
-            this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
+            this.buttonAdd.Click += new System.EventHandler(this.ButtonAdd_Click);
             // 
             // InventorChooserPane
             // 

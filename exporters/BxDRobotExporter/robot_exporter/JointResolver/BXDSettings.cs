@@ -7,6 +7,8 @@ using System.Xml;
 
 public class BXDSettings
 {
+
+
     private static BXDSettings _instance = null;
     public static BXDSettings Instance
     {
@@ -29,7 +31,7 @@ public class BXDSettings
     }
 
     private static Type[] settingsTypes = new Type[] { typeof(EditorsLibrary.ViewerSettingsForm.ViewerSettingsValues),
-                                                       typeof(EditorsLibrary.ExporterSettingsForm.ExporterSettingsValues) };
+                                                       typeof(EditorsLibrary.ExporterSettingsForm.PluginSettingsValues) };
 
     public string LastSkeletonDirectory = null;
 

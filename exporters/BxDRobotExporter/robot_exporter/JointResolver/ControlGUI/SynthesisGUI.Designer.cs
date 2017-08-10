@@ -277,8 +277,6 @@ partial class SynthesisGUI
     
     private System.Windows.Forms.SplitContainer splitContainer1;
     private System.Windows.Forms.SplitContainer splitContainer2;
-    private BXDAEditorPane bxdaEditorPane1;
-    private JointEditorPane jointEditorPane1;
     private System.Windows.Forms.ToolStrip toolStrip1;
     private System.Windows.Forms.ToolStripDropDownButton toolstripFile;
     private System.Windows.Forms.ToolStripMenuItem fileNew;
@@ -293,5 +291,7 @@ partial class SynthesisGUI
     private System.Windows.Forms.ToolStripDropDownButton toolstripHelp;
     private System.Windows.Forms.ToolStripMenuItem helpTutorials;
     private System.Windows.Forms.ToolStripMenuItem helpAbout;
+    public BXDAEditorPane bxdaEditorPane1;
+    public JointEditorPane jointEditorPane1;
     public EditorsLibrary.RobotViewer robotViewer1;
 }

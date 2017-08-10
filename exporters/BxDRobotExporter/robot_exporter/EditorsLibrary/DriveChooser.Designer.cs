@@ -27,6 +27,7 @@ partial class DriveChooser
     /// </summary>
     private void InitializeComponent()
     {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DriveChooser));
             this.cmbJointDriver = new System.Windows.Forms.ComboBox();
             this.grpChooseDriver = new System.Windows.Forms.GroupBox();
             this.grpDriveOptions = new System.Windows.Forms.GroupBox();
@@ -83,18 +84,21 @@ partial class DriveChooser
             // 
             this.cmbJointDriver.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbJointDriver.FormattingEnabled = true;
-            this.cmbJointDriver.Location = new System.Drawing.Point(15, 21);
+            this.cmbJointDriver.Location = new System.Drawing.Point(11, 17);
+            this.cmbJointDriver.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cmbJointDriver.Name = "cmbJointDriver";
-            this.cmbJointDriver.Size = new System.Drawing.Size(287, 24);
+            this.cmbJointDriver.Size = new System.Drawing.Size(297, 21);
             this.cmbJointDriver.TabIndex = 0;
             this.cmbJointDriver.SelectedIndexChanged += new System.EventHandler(this.cmbJointDriver_SelectedIndexChanged);
             // 
             // grpChooseDriver
             // 
             this.grpChooseDriver.Controls.Add(this.cmbJointDriver);
-            this.grpChooseDriver.Location = new System.Drawing.Point(12, 12);
+            this.grpChooseDriver.Location = new System.Drawing.Point(9, 10);
+            this.grpChooseDriver.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.grpChooseDriver.Name = "grpChooseDriver";
-            this.grpChooseDriver.Size = new System.Drawing.Size(319, 56);
+            this.grpChooseDriver.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.grpChooseDriver.Size = new System.Drawing.Size(312, 46);
             this.grpChooseDriver.TabIndex = 1;
             this.grpChooseDriver.TabStop = false;
             this.grpChooseDriver.Text = "Joint Driver";
@@ -110,9 +114,11 @@ partial class DriveChooser
             this.grpDriveOptions.Controls.Add(this.txtPortB);
             this.grpDriveOptions.Controls.Add(this.lblPort);
             this.grpDriveOptions.Controls.Add(this.txtPortA);
-            this.grpDriveOptions.Location = new System.Drawing.Point(13, 75);
+            this.grpDriveOptions.Location = new System.Drawing.Point(10, 61);
+            this.grpDriveOptions.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.grpDriveOptions.Name = "grpDriveOptions";
-            this.grpDriveOptions.Size = new System.Drawing.Size(318, 72);
+            this.grpDriveOptions.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.grpDriveOptions.Size = new System.Drawing.Size(311, 58);
             this.grpDriveOptions.TabIndex = 2;
             this.grpDriveOptions.TabStop = false;
             this.grpDriveOptions.Text = "Joint Options";
@@ -120,9 +126,10 @@ partial class DriveChooser
             // rbPWM
             // 
             this.rbPWM.AutoSize = true;
-            this.rbPWM.Location = new System.Drawing.Point(244, 43);
+            this.rbPWM.Location = new System.Drawing.Point(260, 34);
+            this.rbPWM.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.rbPWM.Name = "rbPWM";
-            this.rbPWM.Size = new System.Drawing.Size(62, 21);
+            this.rbPWM.Size = new System.Drawing.Size(52, 17);
             this.rbPWM.TabIndex = 7;
             this.rbPWM.TabStop = true;
             this.rbPWM.Text = "PWM";
@@ -131,9 +138,10 @@ partial class DriveChooser
             // rbCAN
             // 
             this.rbCAN.AutoSize = true;
-            this.rbCAN.Location = new System.Drawing.Point(244, 22);
+            this.rbCAN.Location = new System.Drawing.Point(260, 18);
+            this.rbCAN.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.rbCAN.Name = "rbCAN";
-            this.rbCAN.Size = new System.Drawing.Size(57, 21);
+            this.rbCAN.Size = new System.Drawing.Size(47, 17);
             this.rbCAN.TabIndex = 6;
             this.rbCAN.TabStop = true;
             this.rbCAN.Text = "CAN";
@@ -143,9 +151,10 @@ partial class DriveChooser
             // chkBoxDriveWheel
             // 
             this.chkBoxDriveWheel.AutoSize = true;
-            this.chkBoxDriveWheel.Location = new System.Drawing.Point(219, 0);
+            this.chkBoxDriveWheel.Location = new System.Drawing.Point(224, 0);
+            this.chkBoxDriveWheel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.chkBoxDriveWheel.Name = "chkBoxDriveWheel";
-            this.chkBoxDriveWheel.Size = new System.Drawing.Size(111, 21);
+            this.chkBoxDriveWheel.Size = new System.Drawing.Size(88, 17);
             this.chkBoxDriveWheel.TabIndex = 5;
             this.chkBoxDriveWheel.Text = "Drive Wheel ";
             this.chkBoxDriveWheel.UseVisualStyleBackColor = true;
@@ -158,23 +167,25 @@ partial class DriveChooser
             0,
             0,
             65536});
-            this.txtHighLimit.Location = new System.Drawing.Point(140, 92);
+            this.txtHighLimit.Location = new System.Drawing.Point(105, 75);
+            this.txtHighLimit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtHighLimit.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
             this.txtHighLimit.Name = "txtHighLimit";
-            this.txtHighLimit.Size = new System.Drawing.Size(120, 22);
+            this.txtHighLimit.Size = new System.Drawing.Size(90, 20);
             this.txtHighLimit.TabIndex = 4;
             this.txtHighLimit.Visible = false;
             // 
             // lblLimits
             // 
             this.lblLimits.AutoSize = true;
-            this.lblLimits.Location = new System.Drawing.Point(11, 72);
+            this.lblLimits.Location = new System.Drawing.Point(8, 58);
+            this.lblLimits.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblLimits.Name = "lblLimits";
-            this.lblLimits.Size = new System.Drawing.Size(78, 17);
+            this.lblLimits.Size = new System.Drawing.Size(58, 13);
             this.lblLimits.TabIndex = 4;
             this.lblLimits.Text = "Joint Limits";
             this.lblLimits.Visible = false;
@@ -187,27 +198,29 @@ partial class DriveChooser
             0,
             0,
             65536});
-            this.txtLowLimit.Location = new System.Drawing.Point(14, 92);
+            this.txtLowLimit.Location = new System.Drawing.Point(10, 75);
+            this.txtLowLimit.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtLowLimit.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
             this.txtLowLimit.Name = "txtLowLimit";
-            this.txtLowLimit.Size = new System.Drawing.Size(120, 22);
+            this.txtLowLimit.Size = new System.Drawing.Size(90, 20);
             this.txtLowLimit.TabIndex = 3;
             this.txtLowLimit.Visible = false;
             // 
             // txtPortB
             // 
-            this.txtPortB.Location = new System.Drawing.Point(140, 42);
+            this.txtPortB.Location = new System.Drawing.Point(105, 34);
+            this.txtPortB.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtPortB.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.txtPortB.Name = "txtPortB";
-            this.txtPortB.Size = new System.Drawing.Size(120, 22);
+            this.txtPortB.Size = new System.Drawing.Size(90, 20);
             this.txtPortB.TabIndex = 2;
             this.txtPortB.Value = new decimal(new int[] {
             1,
@@ -218,22 +231,24 @@ partial class DriveChooser
             // lblPort
             // 
             this.lblPort.AutoSize = true;
-            this.lblPort.Location = new System.Drawing.Point(11, 22);
+            this.lblPort.Location = new System.Drawing.Point(8, 18);
+            this.lblPort.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPort.Name = "lblPort";
-            this.lblPort.Size = new System.Drawing.Size(51, 17);
+            this.lblPort.Size = new System.Drawing.Size(40, 13);
             this.lblPort.TabIndex = 1;
             this.lblPort.Text = "Port ID";
             // 
             // txtPortA
             // 
-            this.txtPortA.Location = new System.Drawing.Point(14, 42);
+            this.txtPortA.Location = new System.Drawing.Point(10, 34);
+            this.txtPortA.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtPortA.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.txtPortA.Name = "txtPortA";
-            this.txtPortA.Size = new System.Drawing.Size(120, 22);
+            this.txtPortA.Size = new System.Drawing.Size(90, 20);
             this.txtPortA.TabIndex = 1;
             this.txtPortA.Value = new decimal(new int[] {
             1,
@@ -243,9 +258,10 @@ partial class DriveChooser
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(13, 247);
+            this.btnSave.Location = new System.Drawing.Point(9, 214);
+            this.btnSave.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(320, 28);
+            this.btnSave.Size = new System.Drawing.Size(312, 23);
             this.btnSave.TabIndex = 11;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
@@ -260,9 +276,10 @@ partial class DriveChooser
             "Normal",
             "Omni",
             "Mecanum"});
-            this.cmbWheelType.Location = new System.Drawing.Point(10, 23);
+            this.cmbWheelType.Location = new System.Drawing.Point(8, 19);
+            this.cmbWheelType.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cmbWheelType.Name = "cmbWheelType";
-            this.cmbWheelType.Size = new System.Drawing.Size(120, 24);
+            this.cmbWheelType.Size = new System.Drawing.Size(91, 21);
             this.cmbWheelType.TabIndex = 7;
             this.cmbWheelType.SelectedIndexChanged += new System.EventHandler(this.cmbWheelType_SelectedIndexChanged);
             // 
@@ -275,9 +292,10 @@ partial class DriveChooser
             "60 psi",
             "20 psi",
             "10 psi"});
-            this.cmbPneumaticPressure.Location = new System.Drawing.Point(136, 27);
+            this.cmbPneumaticPressure.Location = new System.Drawing.Point(102, 22);
+            this.cmbPneumaticPressure.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cmbPneumaticPressure.Name = "cmbPneumaticPressure";
-            this.cmbPneumaticPressure.Size = new System.Drawing.Size(120, 24);
+            this.cmbPneumaticPressure.Size = new System.Drawing.Size(91, 21);
             this.cmbPneumaticPressure.TabIndex = 6;
             // 
             // tabsMeta
@@ -287,10 +305,11 @@ partial class DriveChooser
             this.tabsMeta.Controls.Add(this.metaGearing);
             this.tabsMeta.Controls.Add(this.metaElevatorBrake);
             this.tabsMeta.Controls.Add(this.metaElevatorStages);
-            this.tabsMeta.Location = new System.Drawing.Point(13, 153);
+            this.tabsMeta.Location = new System.Drawing.Point(10, 124);
+            this.tabsMeta.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tabsMeta.Name = "tabsMeta";
             this.tabsMeta.SelectedIndex = 0;
-            this.tabsMeta.Size = new System.Drawing.Size(318, 88);
+            this.tabsMeta.Size = new System.Drawing.Size(311, 72);
             this.tabsMeta.TabIndex = 11;
             // 
             // metaWheel
@@ -299,9 +318,10 @@ partial class DriveChooser
             this.metaWheel.Controls.Add(this.lblType);
             this.metaWheel.Controls.Add(this.cmbFrictionLevel);
             this.metaWheel.Controls.Add(this.cmbWheelType);
-            this.metaWheel.Location = new System.Drawing.Point(4, 25);
+            this.metaWheel.Location = new System.Drawing.Point(4, 22);
+            this.metaWheel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.metaWheel.Name = "metaWheel";
-            this.metaWheel.Size = new System.Drawing.Size(310, 59);
+            this.metaWheel.Size = new System.Drawing.Size(303, 46);
             this.metaWheel.TabIndex = 0;
             this.metaWheel.Text = "Wheel";
             this.metaWheel.UseVisualStyleBackColor = true;
@@ -309,18 +329,20 @@ partial class DriveChooser
             // lblFriction
             // 
             this.lblFriction.AutoSize = true;
-            this.lblFriction.Location = new System.Drawing.Point(133, 0);
+            this.lblFriction.Location = new System.Drawing.Point(100, 0);
+            this.lblFriction.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblFriction.Name = "lblFriction";
-            this.lblFriction.Size = new System.Drawing.Size(92, 17);
+            this.lblFriction.Size = new System.Drawing.Size(70, 13);
             this.lblFriction.TabIndex = 15;
             this.lblFriction.Text = "Friction Level";
             // 
             // lblType
             // 
             this.lblType.AutoSize = true;
-            this.lblType.Location = new System.Drawing.Point(7, 0);
+            this.lblType.Location = new System.Drawing.Point(5, 0);
+            this.lblType.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblType.Name = "lblType";
-            this.lblType.Size = new System.Drawing.Size(84, 17);
+            this.lblType.Size = new System.Drawing.Size(65, 13);
             this.lblType.TabIndex = 14;
             this.lblType.Text = "Wheel Type";
             // 
@@ -332,9 +354,10 @@ partial class DriveChooser
             "High",
             "Medium",
             "Low"});
-            this.cmbFrictionLevel.Location = new System.Drawing.Point(136, 23);
+            this.cmbFrictionLevel.Location = new System.Drawing.Point(102, 19);
+            this.cmbFrictionLevel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cmbFrictionLevel.Name = "cmbFrictionLevel";
-            this.cmbFrictionLevel.Size = new System.Drawing.Size(120, 24);
+            this.cmbFrictionLevel.Size = new System.Drawing.Size(91, 21);
             this.cmbFrictionLevel.TabIndex = 13;
             // 
             // metaPneumatic
@@ -343,9 +366,10 @@ partial class DriveChooser
             this.metaPneumatic.Controls.Add(this.cmbPneumaticPressure);
             this.metaPneumatic.Controls.Add(this.cmbPneumaticDiameter);
             this.metaPneumatic.Controls.Add(this.lblDiameter);
-            this.metaPneumatic.Location = new System.Drawing.Point(4, 25);
+            this.metaPneumatic.Location = new System.Drawing.Point(4, 22);
+            this.metaPneumatic.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.metaPneumatic.Name = "metaPneumatic";
-            this.metaPneumatic.Size = new System.Drawing.Size(310, 59);
+            this.metaPneumatic.Size = new System.Drawing.Size(230, 46);
             this.metaPneumatic.TabIndex = 1;
             this.metaPneumatic.Text = "Pneumatic";
             this.metaPneumatic.UseVisualStyleBackColor = true;
@@ -353,9 +377,10 @@ partial class DriveChooser
             // lblPressure
             // 
             this.lblPressure.AutoSize = true;
-            this.lblPressure.Location = new System.Drawing.Point(133, 7);
+            this.lblPressure.Location = new System.Drawing.Point(100, 6);
+            this.lblPressure.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPressure.Name = "lblPressure";
-            this.lblPressure.Size = new System.Drawing.Size(65, 17);
+            this.lblPressure.Size = new System.Drawing.Size(48, 13);
             this.lblPressure.TabIndex = 13;
             this.lblPressure.Text = "Pressure";
             // 
@@ -367,17 +392,19 @@ partial class DriveChooser
             "1 in",
             ".5 in",
             ".25 in"});
-            this.cmbPneumaticDiameter.Location = new System.Drawing.Point(6, 27);
+            this.cmbPneumaticDiameter.Location = new System.Drawing.Point(4, 22);
+            this.cmbPneumaticDiameter.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cmbPneumaticDiameter.Name = "cmbPneumaticDiameter";
-            this.cmbPneumaticDiameter.Size = new System.Drawing.Size(124, 24);
+            this.cmbPneumaticDiameter.Size = new System.Drawing.Size(94, 21);
             this.cmbPneumaticDiameter.TabIndex = 12;
             // 
             // lblDiameter
             // 
             this.lblDiameter.AutoSize = true;
-            this.lblDiameter.Location = new System.Drawing.Point(3, 7);
+            this.lblDiameter.Location = new System.Drawing.Point(2, 6);
+            this.lblDiameter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblDiameter.Name = "lblDiameter";
-            this.lblDiameter.Size = new System.Drawing.Size(116, 17);
+            this.lblDiameter.Size = new System.Drawing.Size(87, 13);
             this.lblDiameter.TabIndex = 9;
             this.lblDiameter.Text = "Internal Diameter";
             // 
@@ -387,9 +414,10 @@ partial class DriveChooser
             this.metaGearing.Controls.Add(this.lblInputGear);
             this.metaGearing.Controls.Add(this.txtGearRationNum);
             this.metaGearing.Controls.Add(this.txtGearRationDenom);
-            this.metaGearing.Location = new System.Drawing.Point(4, 25);
+            this.metaGearing.Location = new System.Drawing.Point(4, 22);
+            this.metaGearing.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.metaGearing.Name = "metaGearing";
-            this.metaGearing.Size = new System.Drawing.Size(310, 59);
+            this.metaGearing.Size = new System.Drawing.Size(230, 46);
             this.metaGearing.TabIndex = 2;
             this.metaGearing.Text = "Gear Ratio";
             this.metaGearing.UseVisualStyleBackColor = true;
@@ -397,9 +425,10 @@ partial class DriveChooser
             // lblOutputGear
             // 
             this.lblOutputGear.AutoSize = true;
-            this.lblOutputGear.Location = new System.Drawing.Point(133, 9);
+            this.lblOutputGear.Location = new System.Drawing.Point(100, 7);
+            this.lblOutputGear.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblOutputGear.Name = "lblOutputGear";
-            this.lblOutputGear.Size = new System.Drawing.Size(78, 20);
+            this.lblOutputGear.Size = new System.Drawing.Size(66, 17);
             this.lblOutputGear.TabIndex = 14;
             this.lblOutputGear.Text = "Output Gear";
             this.lblOutputGear.UseCompatibleTextRendering = true;
@@ -407,25 +436,28 @@ partial class DriveChooser
             // lblInputGear
             // 
             this.lblInputGear.AutoSize = true;
-            this.lblInputGear.Location = new System.Drawing.Point(7, 9);
+            this.lblInputGear.Location = new System.Drawing.Point(5, 7);
+            this.lblInputGear.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblInputGear.Name = "lblInputGear";
-            this.lblInputGear.Size = new System.Drawing.Size(75, 17);
+            this.lblInputGear.Size = new System.Drawing.Size(57, 13);
             this.lblInputGear.TabIndex = 11;
             this.lblInputGear.Text = "Input Gear";
             // 
             // txtGearRationNum
             // 
-            this.txtGearRationNum.Location = new System.Drawing.Point(10, 29);
+            this.txtGearRationNum.Location = new System.Drawing.Point(8, 24);
+            this.txtGearRationNum.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtGearRationNum.Name = "txtGearRationNum";
-            this.txtGearRationNum.Size = new System.Drawing.Size(120, 22);
+            this.txtGearRationNum.Size = new System.Drawing.Size(91, 20);
             this.txtGearRationNum.TabIndex = 12;
             this.txtGearRationNum.Text = "1";
             // 
             // txtGearRationDenom
             // 
-            this.txtGearRationDenom.Location = new System.Drawing.Point(136, 29);
+            this.txtGearRationDenom.Location = new System.Drawing.Point(102, 24);
+            this.txtGearRationDenom.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtGearRationDenom.Name = "txtGearRationDenom";
-            this.txtGearRationDenom.Size = new System.Drawing.Size(120, 22);
+            this.txtGearRationDenom.Size = new System.Drawing.Size(91, 20);
             this.txtGearRationDenom.TabIndex = 13;
             this.txtGearRationDenom.Text = "1";
             // 
@@ -435,33 +467,37 @@ partial class DriveChooser
             this.metaElevatorBrake.Controls.Add(this.brakePortA);
             this.metaElevatorBrake.Controls.Add(this.lblBrakePort);
             this.metaElevatorBrake.Controls.Add(this.chkBoxHasBrake);
-            this.metaElevatorBrake.Location = new System.Drawing.Point(4, 25);
+            this.metaElevatorBrake.Location = new System.Drawing.Point(4, 22);
+            this.metaElevatorBrake.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.metaElevatorBrake.Name = "metaElevatorBrake";
-            this.metaElevatorBrake.Size = new System.Drawing.Size(310, 59);
+            this.metaElevatorBrake.Size = new System.Drawing.Size(230, 46);
             this.metaElevatorBrake.TabIndex = 3;
             this.metaElevatorBrake.Text = "Break Info";
             this.metaElevatorBrake.UseVisualStyleBackColor = true;
             // 
             // brakePortB
             // 
-            this.brakePortB.Location = new System.Drawing.Point(136, 27);
+            this.brakePortB.Location = new System.Drawing.Point(102, 22);
+            this.brakePortB.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.brakePortB.Name = "brakePortB";
-            this.brakePortB.Size = new System.Drawing.Size(120, 22);
+            this.brakePortB.Size = new System.Drawing.Size(90, 20);
             this.brakePortB.TabIndex = 3;
             // 
             // brakePortA
             // 
-            this.brakePortA.Location = new System.Drawing.Point(10, 27);
+            this.brakePortA.Location = new System.Drawing.Point(8, 22);
+            this.brakePortA.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.brakePortA.Name = "brakePortA";
-            this.brakePortA.Size = new System.Drawing.Size(120, 22);
+            this.brakePortA.Size = new System.Drawing.Size(90, 20);
             this.brakePortA.TabIndex = 2;
             // 
             // lblBrakePort
             // 
             this.lblBrakePort.AutoSize = true;
-            this.lblBrakePort.Location = new System.Drawing.Point(10, 3);
+            this.lblBrakePort.Location = new System.Drawing.Point(8, 2);
+            this.lblBrakePort.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblBrakePort.Name = "lblBrakePort";
-            this.lblBrakePort.Size = new System.Drawing.Size(75, 17);
+            this.lblBrakePort.Size = new System.Drawing.Size(57, 13);
             this.lblBrakePort.TabIndex = 1;
             this.lblBrakePort.Text = "Brake Port";
             this.lblBrakePort.Click += new System.EventHandler(this.label1_Click);
@@ -469,9 +505,10 @@ partial class DriveChooser
             // chkBoxHasBrake
             // 
             this.chkBoxHasBrake.AutoSize = true;
-            this.chkBoxHasBrake.Location = new System.Drawing.Point(160, 3);
+            this.chkBoxHasBrake.Location = new System.Drawing.Point(120, 2);
+            this.chkBoxHasBrake.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.chkBoxHasBrake.Name = "chkBoxHasBrake";
-            this.chkBoxHasBrake.Size = new System.Drawing.Size(96, 21);
+            this.chkBoxHasBrake.Size = new System.Drawing.Size(76, 17);
             this.chkBoxHasBrake.TabIndex = 0;
             this.chkBoxHasBrake.Text = "Has Brake";
             this.chkBoxHasBrake.UseVisualStyleBackColor = true;
@@ -480,9 +517,10 @@ partial class DriveChooser
             // metaElevatorStages
             // 
             this.metaElevatorStages.Controls.Add(this.cmbStages);
-            this.metaElevatorStages.Location = new System.Drawing.Point(4, 25);
+            this.metaElevatorStages.Location = new System.Drawing.Point(4, 22);
+            this.metaElevatorStages.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.metaElevatorStages.Name = "metaElevatorStages";
-            this.metaElevatorStages.Size = new System.Drawing.Size(310, 59);
+            this.metaElevatorStages.Size = new System.Drawing.Size(230, 46);
             this.metaElevatorStages.TabIndex = 4;
             this.metaElevatorStages.Text = "Stages";
             this.metaElevatorStages.UseVisualStyleBackColor = true;
@@ -497,21 +535,25 @@ partial class DriveChooser
             "cascading stage two",
             "continuous stage one",
             "continuos stage two"});
-            this.cmbStages.Location = new System.Drawing.Point(39, 17);
+            this.cmbStages.Location = new System.Drawing.Point(29, 14);
+            this.cmbStages.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.cmbStages.Name = "cmbStages";
-            this.cmbStages.Size = new System.Drawing.Size(217, 24);
+            this.cmbStages.Size = new System.Drawing.Size(164, 21);
             this.cmbStages.TabIndex = 0;
             // 
             // DriveChooser
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(340, 281);
+            this.ClientSize = new System.Drawing.Size(332, 248);
             this.Controls.Add(this.tabsMeta);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.grpDriveOptions);
             this.Controls.Add(this.grpChooseDriver);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.HelpButton = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "DriveChooser";
             this.Text = "Configure Joint";
             this.Load += new System.EventHandler(this.DriveChooser_Load);

@@ -38,7 +38,7 @@ public class RigidNode : RigidNode_Base
         {
             foreach (ComponentOccurrence oc in group.occurrences)
             {
-                components.Add(oc.Name.ToLower());
+                components.Add(oc.Name);
             }
         }
         components.Sort();

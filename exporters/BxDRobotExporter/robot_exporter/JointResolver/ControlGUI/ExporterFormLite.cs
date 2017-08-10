@@ -13,10 +13,10 @@ using System.Windows.Forms;
 using Inventor;
 using EditorsLibrary;
 
-public partial class ExporterForm : Form
+public partial class ExporterFormLite : Form
 {
 
-    public static ExporterForm Instance;
+    public static ExporterFormLite Instance;
 
     public RigidNode_Base ExportedNode;
     public List<BXDAMesh> ExportedMeshes;
@@ -32,7 +32,7 @@ public partial class ExporterForm : Form
 
     ExporterSettingsForm.PluginSettingsValues ExporterSettings;
 
-    public ExporterForm(ExporterSettingsForm.PluginSettingsValues settings)
+    public ExporterFormLite(ExporterSettingsForm.PluginSettingsValues settings)
     {
         InitializeComponent();
 

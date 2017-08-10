@@ -7,11 +7,6 @@ using System.Collections.Generic;
 public class RigidNode_Base
 {
     /// <summary>
-    /// EXPORTER SIDE ONLY: Assign the ComponentOccurrence to this so it can be used to select inventor nodes
-    /// </summary>
-    public object Component;
-
-    /// <summary>
     /// Generic delegate for creating rigid node instances
     /// </summary>
     public delegate RigidNode_Base RigidNodeFactory(Guid guid);
