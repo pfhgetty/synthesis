@@ -13,18 +13,18 @@ using FieldExporter;
 namespace BxDFieldExporter
 {
     //User Defined Interface Exposed through the Add-In Automation property
-    public interface AutomationInterface
+    public interface IAutomationInterface
     {
-        void setDone(bool isDone);
-        bool getDone();
-        void setRunOnce(bool run);
-        bool getRunOnce();
-        void setCancel(bool isCancel);
+        void SetDone(bool isDone);
+        bool GetDone();
+        void SetRunOnce(bool run);
+        bool GetRunOnce();
+        void SetCancel(bool isCancel);
     }
     //TLDR: exports the field
 
     [GuidAttribute("e50be244-9f7b-4b94-8f87-8224faba8ca1")]
-    public partial class StandardAddInServer : Inventor.ApplicationAddInServer, AutomationInterface
+    public partial class StandardAddInServer : Inventor.ApplicationAddInServer, IAutomationInterface
     {
         // all the global variables
         #region variables
@@ -157,27 +157,27 @@ namespace BxDFieldExporter
         #endregion
 
         #region API exposed methods
-        public void setDone(bool isDone)
+        public void SetDone(bool isDone)
         {
             done = isDone;
         }
 
-        public bool getDone()
+        public bool GetDone()
         {
             return done;
         }
 
-        public void setRunOnce(bool run)
+        public void SetRunOnce(bool run)
         {
             runOnce = run;
         }
 
-        public bool getRunOnce()
+        public bool GetRunOnce()
         {
             return runOnce;
         }
 
-        public void setCancel(bool isCancel)
+        public void SetCancel(bool isCancel)
         {
             cancel = isCancel;
         }
@@ -187,6 +187,7 @@ namespace BxDFieldExporter
 		
         private void ApplicationEvents_OnActivateDocument(_Document DocumentObject, EventTimingEnum BeforeOrAfter, NameValueMap Context, out HandlingCodeEnum HandlingCode)
         {
+            
             if(DocumentObject is PartDocument doc)
             {
                 doc.DisabledCommandList.Add(InventorApplication.CommandManager.ControlDefinitions["BxD:RobotExporter:Environment"]);
@@ -202,7 +203,7 @@ namespace BxDFieldExporter
             HandlingCode = HandlingCodeEnum.kEventNotHandled;
         }
         // called when the exporter starts
-        public void startExport_OnExecute(Inventor.NameValueMap Context)
+        public void StartExport_OnExecute(NameValueMap Context)
         {
             try
             {
@@ -266,14 +267,14 @@ namespace BxDFieldExporter
 
                     oPane.Refresh();
                     ReadSaveFieldData();// read the save so the user doesn't loose any previous work
-                    TimerWatch();// begin the timer watcher to detect deselect
+                    //TimerWatch();// begin the timer watcher to detect deselect
                 }
                 else
                 {
                     MessageBox.Show("Please close out of the robot exporter in the other assembly");
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }
@@ -284,16 +285,23 @@ namespace BxDFieldExporter
             if (environment.Equals(FieldExporterEnvironment) && EnvironmentState.Equals(EnvironmentStateEnum.kActivateEnvironmentState) && !closing)
             {
                 closing = true;
-                startExport_OnExecute(null);
+                StartExport_OnExecute(null);
             }
             else if (environment.Equals(FieldExporterEnvironment) && EnvironmentState.Equals(EnvironmentStateEnum.kTerminateEnvironmentState) && closing)
             {
                 closing = false;
+                inExportView = false;
                 //cancelExporter_OnExecute(null);
             }
             HandlingCode = HandlingCodeEnum.kEventNotHandled;
+            if (environment.InternalName.Equals("BxD:FieldExporter:Environment"))
+            {
+                BrowserNodeIcons(); //sets topnode icon if environment is changed to field exporter
+            }
         }
-
+        /// <summary>
+        /// Prepares the exportation environment, generates Icons, descriptions, and tooltips for each button
+        /// </summary>
         public void AddParallelEnvironment()
         {
             try
@@ -357,7 +365,11 @@ namespace BxDFieldExporter
 
                 ControlDefinitions controlDefs = InventorApplication.CommandManager.ControlDefinitions;// get the controls for Inventor
                 beginExporter = controlDefs.AddButtonDefinition("Start Exporter", "BxD:FieldExporter:StartExporter", CommandTypesEnum.kNonShapeEditCmdType, m_ClientId, "Starts the field exporter", "Yay lets start!", startExporterIconSmall, startExporterIconLarge, ButtonDisplayEnum.kAlwaysDisplayText);
+<<<<<<< HEAD
                 beginExporter.OnExecute += new ButtonDefinitionSink_OnExecuteEventHandler(startExport_OnExecute); 
+=======
+                beginExporter.OnExecute += new ButtonDefinitionSink_OnExecuteEventHandler(StartExport_OnExecute);
+>>>>>>> master
 
                 addNewComponent = controlDefs.AddButtonDefinition(" Add New Component ", "BxD:FieldExporter:AddNewComponent", CommandTypesEnum.kNonShapeEditCmdType, m_ClientId, null, null, addNewComponentIconSmall, addNewComponentIconLarge, ButtonDisplayEnum.kAlwaysDisplayText);
                 addNewComponent.OnExecute += new ButtonDefinitionSink_OnExecuteEventHandler(AddNewComponent_OnExecute);
@@ -507,9 +519,9 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
         // reacts to a selection
         private void UIEvents_OnSelect(ObjectsEnumerator JustSelectedEntities, ref ObjectCollection MoreSelectedEntities, SelectionDeviceEnum SelectionDevice, Inventor.Point ModelPosition, Point2d ViewPosition, Inventor.View View)
         {
-            oSet.Clear();// clear the highlight set to add a new component to the set
             if (SelectionDevice == SelectionDeviceEnum.kGraphicsWindowSelection && inExportView)
             {// if the selection is from the graphical interface and the exporter is active
+                oSet.Clear();// clear the highlight set to add a new component to the set
                 foreach (object sel in JustSelectedEntities)
                 {//looks at all things selected
                     if (sel is ComponentOccurrence)
@@ -585,7 +597,7 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                 aTimer.Enabled = true;// starts the timer
                 RightDoc = true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }
@@ -679,7 +691,9 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                     oNodeRescs = oPanes.ClientNodeResources;// set the ClientNodeResources the the active document's ClientNodeResources
                     try
                     {
-                        oRes = oNodeRescs.Add("MYID", 1, null);// create a new ClientNodeResource to be used when you add the browser node
+                        stdole.IPictureDisp componentIcon =
+                            PictureDispConverter.ToIPictureDisp(new Bitmap(BxDFieldExporter.Resource.ComponentBrowserNode16));
+                        oRes = oNodeRescs.Add("MYID", 1, componentIcon);// create a new ClientNodeResource to be used when you add the browser node
                     }
                     catch (Exception)
                     {// if the method fails then assume that there is already a ClientNodeResource
@@ -697,7 +711,7 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                     MessageBox.Show("Please choose a name that hasn't already been used");// tell the user to use a different name
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
             return def;// returns the browsernodedef
@@ -737,13 +751,16 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
             if(names == "")
             {
                 MessageBox.Show("ERROR: No components were selected", "Remove Component");
+                SetAllButtons(true);
+                return;
             }
             DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete Component: " + "\n" + names, "Remove Component", MessageBoxButtons.OKCancel);
             if (dialogResult == DialogResult.OK)
             {
+                ArrayList FieldComponentsCopy = (ArrayList)FieldComponents.Clone();
                 foreach (BrowserNode node in selectedNodes)
                 {
-                    foreach (FieldDataComponent f in FieldComponents)
+                    foreach (FieldDataComponent f in FieldComponentsCopy)
                     {
                         if (f.same(node.BrowserNodeDefinition))
                         {
@@ -792,12 +809,13 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
             int componentsAdded = 0; //Tracks how many components are added
             try
             {
-                while (!done)
+                SetDone(false);
+                while (!GetDone())
                 {
-                    ComponentOccurrence joint = null;
-                    AssemblyDocument asmDoc = (AssemblyDocument)InventorApplication.ActiveDocument;
-                    joint = (ComponentOccurrence)InventorApplication.CommandManager.Pick(SelectionFilterEnum.kAssemblyOccurrenceFilter, "Select an assembly to add");
-                    if (joint != null)
+                    ComponentOccurrence selectedAssembly = null;
+                    //AssemblyDocument asmDoc = (AssemblyDocument)InventorApplication.ActiveDocument;
+                    selectedAssembly = (ComponentOccurrence)InventorApplication.CommandManager.Pick(SelectionFilterEnum.kAssemblyOccurrenceFilter, "Select an assembly to add");
+                    if (selectedAssembly != null)
                     {
                         foreach (BrowserNode node in oPane.TopNode.BrowserNodes)// look at all the nodes under the top node
                         {
@@ -807,21 +825,23 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                                 {
                                     if (t.same(node.BrowserNodeDefinition))// if the fieldDataComponent is from that browsernode then run
                                     {
-                                        t.CompOccs.Add(joint);// add the assembly occurence to the arraylist
-                                        partSet.AddItem(joint); //add the assembly occurence to a set that is highlighted in purple
+                                        t.CompOccs.Add(selectedAssembly);// add the assembly occurence to the arraylist
+                                        partSet.AddItem(selectedAssembly); //add the assembly occurence to a set that is highlighted in purple
                                         ClientNodeResources nodeRescs = oPanes.ClientNodeResources;
-                                        ClientNodeResource nodeRes = null;
+                                        ClientNodeResource nodeRes = null;                                        
                                         try
                                         {
-                                            nodeRes = nodeRescs.Add(node.BrowserNodeDefinition.Label, 1, null);
+                                            stdole.IPictureDisp assemblyIcon =
+                                                PictureDispConverter.ToIPictureDisp(new Bitmap(BxDFieldExporter.Resource.AssemblyIcon16));
+                                          nodeRes = nodeRescs.Add(node.BrowserNodeDefinition.Label, 1, assemblyIcon);                                           
                                         }
                                         catch
                                         {
                                             nodeRes = oPanes.ClientNodeResources.ItemById(node.BrowserNodeDefinition.Label, 1);
                                         }
-                                        node.AddChild((BrowserNodeDefinition)oPanes.CreateBrowserNodeDefinition(joint.Name, rand.Next(), nodeRes));
+                                        node.AddChild((BrowserNodeDefinition)oPanes.CreateBrowserNodeDefinition(selectedAssembly.Name, rand.Next(), nodeRes));
                                         node.DoSelect();
-                                        LegacyInterchange.AddComponents(node.BrowserNodeDefinition.Label, joint);
+                                        LegacyInterchange.AddComponents(node.BrowserNodeDefinition.Label, selectedAssembly);
                                     }
                                 }
                             }
@@ -830,7 +850,7 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
@@ -877,14 +897,15 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
             done = false;
             cancel = false;
             int componentsAdded = 0; //Tracks how many components are added
-            while (!done)
+            SetDone(false);
+            while (!GetDone())
             {
-                ComponentOccurrence joint = null;
+                ComponentOccurrence selectedPart = null;
                 AssemblyDocument asmDoc = (AssemblyDocument)
                              InventorApplication.ActiveDocument;
-                joint = (ComponentOccurrence)InventorApplication.CommandManager.Pick// have the user select a part
+                selectedPart = (ComponentOccurrence)InventorApplication.CommandManager.Pick// have the user select a part
                           (SelectionFilterEnum.kAssemblyLeafOccurrenceFilter, "Select a part to add");
-                if (joint != null)
+                if (selectedPart != null)
                 {
                     foreach (BrowserNode node in oPane.TopNode.BrowserNodes)// look at all the nodes under the top node
                     {
@@ -894,8 +915,8 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                             {
                                 if (t.same(node.BrowserNodeDefinition))// is the fieldDataComponent is from that browsernode then run
                                 {
-                                    t.CompOccs.Add(joint);// add the part occurence to the arraylist
-                                    partSet.AddItem(joint); //add the part occurence to a set that is highlighted in purple
+                                    t.CompOccs.Add(selectedPart);// add the part occurence to the arraylist
+                                    partSet.AddItem(selectedPart); //add the part occurence to a set that is highlighted in purple
                                     ClientNodeResources nodeRescs = oPanes.ClientNodeResources;
                                     ClientNodeResource nodeRes = null;
                                     try
@@ -906,18 +927,17 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                                     {
                                         nodeRes = oPanes.ClientNodeResources.ItemById(node.BrowserNodeDefinition.Label, 1);
                                     }
-                                    node.AddChild((BrowserNodeDefinition)oPanes.CreateBrowserNodeDefinition(joint.Name, rand.Next(), nodeRes));
+                                    node.AddChild((BrowserNodeDefinition)oPanes.CreateBrowserNodeDefinition(selectedPart.Name, rand.Next(), nodeRes));
                                     node.DoSelect();
-                                    //LegacyInterchange.CompPropertyDictionary.Add(joint.Name, node.BrowserNodeDefinition.Label);
-                                    LegacyInterchange.AddComponents(node.BrowserNodeDefinition.Label, joint);
+                                    //LegacyInterchange.CompPropertyDictionary.Add(selectedPart.Name, node.BrowserNodeDefinition.Label);
+                                    LegacyInterchange.AddComponents(node.BrowserNodeDefinition.Label, selectedPart);
                                 }
                             }
                         }
                     }
                     componentsAdded++; //Tracks how many components are added
                 }
-            }
-
+            } 
             partSet.Clear(); //Clears the highlighted set
 
             ////TODO: If the user clicks "cancel", remove all parts previously added to the list
@@ -1016,7 +1036,7 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }
@@ -1087,7 +1107,7 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                     g += (InventorApplication.ActiveDocument.ReferenceKeyManager.KeyToString(refKey)) + "¯\\_(:()_/¯";//convert the refkey to a string and adds a limiter so we can read the string at the start of the add in
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
             try
@@ -1125,6 +1145,7 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
             if (FieldComponents.Count == 0)
             {
                 MessageBox.Show("ERROR: No Field Components!");
+                SetAllButtons(true);
                 return;
             }
             //envMan.SetCurrentEnvironment(envMan.BaseEnvironment);
@@ -1234,7 +1255,6 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
             return false;
         }
 
-
         public bool AreNodesSelected()
         {
             foreach(BrowserNode node in oPane.TopNode.BrowserNodes)
@@ -1250,6 +1270,22 @@ Checking “Dynamic” enables an object to be moved in the simulator. For example, 
                 }
             }
             return false;
+        }
+        public static void BrowserNodeIcons()
+        {
+            Document activeDoc = InventorApplication.ActiveDocument;
+            BrowserPane activePane = activeDoc.BrowserPanes.ActivePane;
+            BrowserNode topNode = activePane.TopNode;
+
+            ClientBrowserNodeDefinition topNodeDef = (ClientBrowserNodeDefinition)topNode.BrowserNodeDefinition;
+
+            stdole.IPictureDisp fieldIcon =
+                PictureDispConverter.ToIPictureDisp(new Bitmap(BxDFieldExporter.Resource.FieldIcon16));
+
+            ClientNodeResource fieldResource;
+            fieldResource = activeDoc.BrowserPanes.ClientNodeResources.Add("FieldIcon16", 2, fieldIcon);
+
+            topNodeDef.Icon = fieldResource;
         }
     }
 

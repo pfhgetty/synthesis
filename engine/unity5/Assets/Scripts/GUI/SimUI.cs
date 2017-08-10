@@ -16,28 +16,34 @@ public class SimUI : MonoBehaviour
     DynamicCamera camera;
     Toolkit toolkit;
     DriverPracticeMode dpm;
+    SensorManagerGUI sensorManagerGUI;
 
     GameObject canvas;
 
     GameObject freeroamCameraWindow;
     GameObject spawnpointWindow;
 
-    GameObject robotCameraList;
-    GameObject robotCameraIndicator;
-    GameObject showCameraButton;
-    GameObject configureRobotCameraButton;
-    GameObject cameraConfigurationModeButton;
-    GameObject changeCameraNodeButton;
-    GameObject configureCameraPanel;
-    GameObject cancelNodeSelectionButton;
+    GameObject swapWindow;
+
+    GameObject wheelPanel;
+    GameObject driveBasePanel;
+    GameObject manipulatorPanel;
+
 
     GameObject changeRobotPanel;
+    GameObject robotListPanel;
     GameObject changeFieldPanel;
     GameObject addRobotPanel;
 
     GameObject driverStationPanel;
 
     GameObject inputManagerPanel;
+    GameObject unitConversionButton;
+
+    public bool swapWindowOn = false; //if the swap window is active
+    public bool wheelPanelOn = false; //if the wheel panel is active
+    public bool driveBasePanelOn = false; //if the drive base panel is active
+    public bool manipulatorPanelOn = false; //if the manipulator panel is active
 
     GameObject exitPanel;
 
@@ -65,8 +71,6 @@ public class SimUI : MonoBehaviour
         if (main == null)
         {
             main = transform.GetComponent<StateMachine>().CurrentState as MainState;
-            //Get the render texture from Resources/Images
-            toolkit = GetComponent<Toolkit>();
         }
         else if (dpm == null)
         {
@@ -74,6 +78,8 @@ public class SimUI : MonoBehaviour
 
             toolkit = GetComponent<Toolkit>();
             dpm = GetComponent<DriverPracticeMode>();
+            sensorManagerGUI = GetComponent<SensorManagerGUI>();
+
             FindElements();
         }
         else if (camera == null)
@@ -112,15 +118,18 @@ public class SimUI : MonoBehaviour
         freeroamCameraWindow = AuxFunctions.FindObject(canvas, "FreeroamPanel");
         spawnpointWindow = AuxFunctions.FindObject(canvas, "SpawnpointPanel");
 
+        swapWindow = AuxFunctions.FindObject(canvas, "SwapPanel");
+        wheelPanel = AuxFunctions.FindObject(canvas, "WheelPanel");
+        driveBasePanel = AuxFunctions.FindObject(canvas, "DriveBasePanel");
+        manipulatorPanel = AuxFunctions.FindObject(canvas, "ManipulatorPanel");
+
         addRobotPanel = AuxFunctions.FindObject("MultiplayerPanel");
-
-
 
         driverStationPanel = AuxFunctions.FindObject(canvas, "DriverStationPanel");
         changeRobotPanel = AuxFunctions.FindObject(canvas, "ChangeRobotPanel");
-        changeFieldPanel = AuxFunctions.FindObject(canvas, "ChangeFieldPanel");
+        robotListPanel = AuxFunctions.FindObject(changeRobotPanel, "RobotListPanel");
 
-        driverStationPanel = AuxFunctions.FindObject(canvas, "DriverStationPanel");
+        changeFieldPanel = AuxFunctions.FindObject(canvas, "ChangeFieldPanel");
 
         inputManagerPanel = AuxFunctions.FindObject(canvas, "InputManagerPanel");
 
@@ -130,6 +139,7 @@ public class SimUI : MonoBehaviour
         exitPanel = AuxFunctions.FindObject(canvas, "ExitPanel");
         loadingPanel = AuxFunctions.FindObject(canvas, "LoadingPanel");
 
+        unitConversionButton = AuxFunctions.FindObject(canvas, "UnitConversionButton");
     }
 
 
@@ -162,6 +172,9 @@ public class SimUI : MonoBehaviour
             PlayerPrefs.SetString("simSelectedReplay", string.Empty);
             PlayerPrefs.SetString("simSelectedRobot", directory);
             PlayerPrefs.SetString("simSelectedRobotName", panel.GetComponent<ChangeRobotScrollable>().selectedEntry);
+            PlayerPrefs.Save();
+            RobotCamera rc = GameObject.Find("RobotCameraList").GetComponent<RobotCamera>();
+            rc.RemoveCameras();
             main.ChangeRobot(directory);
         }
         else
@@ -180,6 +193,7 @@ public class SimUI : MonoBehaviour
         {
             EndOtherProcesses();
             changeRobotPanel.SetActive(true);
+            robotListPanel.SetActive(true);
         }
     }
 
@@ -249,6 +263,7 @@ public class SimUI : MonoBehaviour
 
         dpm.EndProcesses();
         toolkit.EndProcesses();
+        sensorManagerGUI.EndProcesses();
     }
     #endregion
     #region camera button functions
@@ -416,6 +431,70 @@ public class SimUI : MonoBehaviour
                 exitPanel.SetActive(false);
                 break;
         }
-
     }
+
+    /// <summary>
+    /// Toggles between meter and feet measurements
+    /// </summary>
+    public void ToggleUnitConversion()
+    {
+        main.IsMetric = !main.IsMetric;
+        if (main.IsMetric)
+        {
+            unitConversionButton.GetComponentInChildren<Text>().text = "To Feet";
+        }
+        else
+        {
+            unitConversionButton.GetComponentInChildren<Text>().text = "To Meter";
+        }
+    }
+    #region swap part
+    /// <summary>
+    /// Toggles the Driver Practice Mode window
+    /// </summary>
+    public void SwapToggleWindow()
+    {
+        swapWindowOn = !swapWindowOn;
+        swapWindow.SetActive(swapWindowOn);
+    }
+
+    public void TogglePanel(GameObject panel)
+    {
+        if (panel.activeSelf == true)
+        {
+            panel.SetActive(false);
+        } else
+        {
+            panel.SetActive(true);
+        } 
+    }
+
+    public void PartToggleWindow(string Window)
+    {
+        List<GameObject> swapPanels = new List<GameObject> { wheelPanel, driveBasePanel, manipulatorPanel };
+        switch (Window)
+        {
+            case "wheel":
+                TogglePanel(wheelPanel);
+                driveBasePanel.SetActive(false);
+                manipulatorPanel.SetActive(false);
+                break;
+            case "driveBase":
+                TogglePanel(driveBasePanel);
+                wheelPanel.SetActive(false);
+                manipulatorPanel.SetActive(false);
+                break;
+            case "manipulator":
+                TogglePanel(manipulatorPanel);
+                driveBasePanel.SetActive(false);
+                wheelPanel.SetActive(false);
+                break;
+            default:
+                wheelPanel.SetActive(false);
+                driveBasePanel.SetActive(false);
+                manipulatorPanel.SetActive(false);
+                break;
+        }
+    }
+    #endregion
 }
