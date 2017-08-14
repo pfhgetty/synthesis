@@ -31,21 +31,22 @@ public partial class SurfaceExporter
     /// <param name="reporter">Progress reporter</param>
     public void ExportAll(CustomRigidGroup group, BXDIO.ProgressReporter reporter = null)
     {
-        SynthesisGUI.Instance.ExporterSetSubText("Including parts");
+        if (!SynthesisGUI.LiteMode)
+        {
+            SynthesisGUI.Instance.ExporterSetSubText("Including parts"); 
+        }
+        else
+        {
+            LiteExporterForm.Instance.SetProgressText("Including parts...");
+        }
 
         List<ExportPlan> plans = GenerateExportList(group);
         Console.WriteLine();
-        if (reporter != null)
-        {
-            reporter(0, plans.Count);
-        }
+        reporter?.Invoke(0, plans.Count);
         for (int i = 0; i < plans.Count; i++)
         {
             AddFacets(plans[i].surf, plans[i].bestResolution, plans[i].separateFaces);
-            if (reporter != null)
-            {
-                reporter((i + 1), plans.Count);
-            }
+            reporter?.Invoke((i + 1), plans.Count);
         }
     }
 

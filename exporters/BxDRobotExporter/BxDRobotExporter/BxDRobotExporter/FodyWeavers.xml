@@ -2,12 +2,10 @@
 <Weavers>
   <Costura>
     <IncludeAssemblies>
-      EditorsLibrary
-      OGLViewer
       OpenTK
       OpenTK.GLControl
       SimulatorAPI
-      Inventor_Exporter
+      RobotExportAPI
     </IncludeAssemblies>
   </Costura>
 </Weavers>

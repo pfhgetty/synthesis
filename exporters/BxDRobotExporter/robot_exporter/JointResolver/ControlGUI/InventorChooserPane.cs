@@ -36,10 +36,10 @@ public partial class InventorChooserPane : UserControl
 
         buttonAdd.Enabled = false;
 
-        ExporterFormLite.Instance.ResetProgress();
+        ExporterForm.Instance.ResetProgress();
 
         RigidNode_Base skeleton = Exporter.ExportSkeleton(InventorManager.Instance.ComponentOccurrences.OfType<ComponentOccurrence>().ToList());
-        ExporterFormLite.Instance.UpdateComponents(skeleton);
+        ExporterForm.Instance.UpdateComponents(skeleton);
 
         //InventorManager.Instance.UserInterfaceManager.UserInteractionDisabled = false;
         buttonAdd.Enabled = true;

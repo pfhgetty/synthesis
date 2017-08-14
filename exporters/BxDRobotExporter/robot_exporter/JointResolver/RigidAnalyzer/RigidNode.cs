@@ -2,8 +2,9 @@
 using System.Text;
 using Inventor;
 using System;
+using OGLViewer;
 
-public class RigidNode : RigidNode_Base
+public class RigidNode : OGL_RigidNode 
 {
     public delegate void DeferredCalculation(RigidNode node);
 

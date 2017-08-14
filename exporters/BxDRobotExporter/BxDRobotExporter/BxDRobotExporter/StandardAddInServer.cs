@@ -13,21 +13,16 @@ using System.Runtime.InteropServices;
 namespace BxDRobotExporter
 {
     /// <summary>
-    /// With any luck i'll slowly replace StandardAddInServer.cs with this and just rename it and refactor the place holder functions to be the actual ApplicationAddInServer Methods instead of just calling them from there
+    /// This is where the magic happens. All top-level event handling, UI creation, and inventor communication is handled here.
     /// </summary>
-    public partial class StandardAddInServer : Inventor.ApplicationAddInServer
+    public class StandardAddInServer : ApplicationAddInServer
     {
-        enum JointNodeType
-        {
-            kParentNode,
-            kChildNode
-        }
-
-
         #region Variables 
-        //(Variables that are defined in StandardAddinServer.cs but used here are named in comments)
-        //ExporterEnv
-        public static Inventor.Application MainApplication;
+
+        public static StandardAddInServer Instance;
+        public ExporterLogger Logger = new ExporterLogger();
+
+        public Inventor.Application MainApplication;
 
         AssemblyDocument AsmDocument;
         Inventor.Environment ExporterEnv;
@@ -58,12 +53,12 @@ namespace BxDRobotExporter
         #region DEBUG
 #if DEBUG
         RibbonPanel DebugPanel;
-        ButtonDefinition DebugButton;
+        ButtonDefinition SelectionTestButton;
+        ButtonDefinition UITestButton;
 #endif
         #endregion
         #endregion
-
-
+        
         #region ApplicationAddInServer Methods
         /// <summary>
         /// Called when the <see cref="StandardAddInServer"/> is being loaded
@@ -102,18 +97,12 @@ namespace BxDRobotExporter
             #endregion
 
             #endregion
-            #region UI Creation
-            Environments environments = MainApplication.UserInterfaceManager.Environments;
 
-            try
-            {
-                ExporterEnv = environments.Add("Robot Exporter", "BxD:RobotExporter:Environment", null, StartExporterIconSmall, StartExporterIconLarge);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.ToString());
-                throw;
-            }
+            #region UI Creation
+
+            #region Setup New Environment and Ribbon
+            Environments environments = MainApplication.UserInterfaceManager.Environments;
+            ExporterEnv = environments.Add("Robot Exporter", "BxD:RobotExporter:Environment", null, StartExporterIconSmall, StartExporterIconLarge);
 
             Ribbon assemblyRibbon = MainApplication.UserInterfaceManager.Ribbons["Assembly"];
             RibbonTab ExporterTab = assemblyRibbon.RibbonTabs.Add("Robot Exporter", "BxD:RobotExporter:RobotExporterTab", ClientID, "", false, true);
@@ -124,7 +113,9 @@ namespace BxDRobotExporter
             ExportPanel = ExporterTab.RibbonPanels.Add("Export", "BxD:RobotExporter:ExportPanel", ClientID);
             SettingsPanel = ExporterTab.RibbonPanels.Add("Settings", "BxD:RobotExporter:SettingsPanel", ClientID);
             HelpPanel = ExporterTab.RibbonPanels.Add("Help", "BxD:RobotExporter:HelpPanel", ClientID);
+            #endregion
 
+            #region Setup Buttons
             //Load Exported Robot
             LoadExportedRobotButton = ControlDefs.AddButtonDefinition("Load Exported Robot", "BxD:RobotExporter:LoadExportedRobot", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, LoadExportedRobotIconSmall, LoadExportedRobotIconLarge);
             LoadExportedRobotButton.OnExecute += LoadExportedRobotButton_OnExecute;
@@ -158,25 +149,37 @@ namespace BxDRobotExporter
             #region DEBUG
 #if DEBUG
             DebugPanel = ExporterTab.RibbonPanels.Add("Debug", "BxD:RobotExporter:DebugPanel", ClientID);
-            DebugButton = ControlDefs.AddButtonDefinition("Debug", "BxD:RobotExporter:DebugButton", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, DebugButtonSmall, DebugButtonLarge);
-            DebugButton.OnExecute += delegate (NameValueMap context)
+            //Selection Test
+            SelectionTestButton = ControlDefs.AddButtonDefinition("Selection Test", "BxD:RobotExporter:SelectionTestButton", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, DebugButtonSmall, DebugButtonLarge);
+            SelectionTestButton.OnExecute += delegate (NameValueMap context)
             {
                 Forms.DebugHighlightForm dhf = new Forms.DebugHighlightForm();
                 if (dhf.ShowDialog(out string ComponentName) == DialogResult.OK)
                 {
-                    SelectNode(ComponentName, JointNodeType.kChildNode);
+                    SelectNode(ComponentName, JointNodeTypeEnum.kChildNode);
                 }
             };
-            DebugPanel.CommandControls.AddButton(DebugButton, true);
+            DebugPanel.CommandControls.AddButton(SelectionTestButton, true);
+            //UI Test
+            UITestButton = ControlDefs.AddButtonDefinition("UI Test", "BxD:RobotExporter:UITestButton", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, DebugButtonSmall, DebugButtonLarge);
+            UITestButton.OnExecute += delegate (NameValueMap context)
+            {
+                LiteExporterForm ExportLite = new LiteExporterForm(Logger);
+                ExportLite.ShowDialog();
+            };
+            DebugPanel.CommandControls.AddButton(UITestButton, true);
 #endif
+            #endregion 
             #endregion
 
             #endregion
+
             #region Final Environment Setup
             ExporterEnv.DefaultRibbonTab = "BxD:RobotExporter:RobotExporterTab";
             MainApplication.UserInterfaceManager.ParallelEnvironments.Add(ExporterEnv);
             ExporterEnv.DisabledCommandList.Add(MainApplication.CommandManager.ControlDefinitions["BxD:RobotExporter:Environment"]);
             #endregion
+
             #region Event Handler Assignment
             UserInterfaceEvents UIEvents = MainApplication.UserInterfaceManager.UserInterfaceEvents;
             UIEvents.OnEnvironmentChange += UIEvents_OnEnvironmentChange;
@@ -184,6 +187,8 @@ namespace BxDRobotExporter
             MainApplication.ApplicationEvents.OnDeactivateDocument += ApplicationEvents_OnDeactivateDocument;
             #endregion 
             #endregion
+
+            Instance = this;
         }
 
         /// <summary>
@@ -219,8 +224,9 @@ namespace BxDRobotExporter
         }
         #endregion
 
+        #region Environment Switching
         /// <summary>
-        /// Enables or disables the environment
+        /// Enables or disables the <see cref="Inventor.Environment"/>
         /// </summary>
         /// <remarks>
         /// calls StartExporter and EndExporter
@@ -231,13 +237,26 @@ namespace BxDRobotExporter
             {
                 EnvironmentEnabled = false;
                 EndExporter();
+                Logger.DisposeWriter();
             }
             else
             {
                 EnvironmentEnabled = true;
                 StartExporter();
+                #region DEBUG SWITCH
+#if DEBUG
+                Logger = new ExporterLogger(ExporterLogger.LoggerMode.Precise);
+#else
+            Logger = new ExporterLogger();
+#endif
+                #endregion
+
             }
         }
+
+        /// <summary>
+        /// Gets the assembly document and makes the <see cref="DockableWindows"/>
+        /// </summary>
         private void StartExporter()
         {
             //Gets the assembly document and creates dockable windows
@@ -253,42 +272,18 @@ namespace BxDRobotExporter
             ExporterSettingsForm.PluginSettingsValues.SettingsChanged += ExporterSettings_SettingsChanged;
         }
 
-
+        /// <summary>
+        /// Disposes of some COM objects and exits the environment
+        /// </summary>
         private void EndExporter()
         {
             AsmDocument = null;
             Utilities.DisposeDockableWindows();
             ChildHighlight = null;
-        }
+        } 
+        #endregion
 
-        private void SelectNode(string Name, JointNodeType jointNodeType)
-        {
-            switch (jointNodeType)
-            {
-                case JointNodeType.kParentNode:
-                    foreach (ComponentOccurrence Occ in AsmDocument.ComponentDefinition.Occurrences)
-                    {
-                        if (Occ.Name == Name)
-                        {
-                            ParentHighlight.AddItem(Occ);
-                        }
-                    }
-                    break;
-                case JointNodeType.kChildNode:
-                    foreach (ComponentOccurrence Occ in AsmDocument.ComponentDefinition.Occurrences)
-                    {
-                        if (Occ.Name == Name)
-                        {
-                            ChildHighlight.AddItem(Occ);
-                        }
-                    }
-                    break;
-            }
-
-
-        }
-
-        #region Event Callbacks
+        #region Event Callbacks and Button Commands
         /// <summary>
         /// Makes the dockable windows invisible when the document switches. This avoids data loss.
         /// </summary>
@@ -361,7 +356,7 @@ namespace BxDRobotExporter
         /// </summary>
         private void HelpButton_OnExecute(NameValueMap Context)
         {
-            Process.Start("http://bxd.autodesk.com/tutorials.html");
+            Process.Start("http://bxd.autodesk.com/tutorial-robot.html");
         }
 
         /// <summary>
@@ -373,19 +368,41 @@ namespace BxDRobotExporter
             Utilities.GUI.SettingsExporter_OnClick(this, null);
         }
 
-
+        /// <summary>
+        /// Opens the <see cref="LiteExporterForm"/> through <see cref="Utilities.GUI"/>
+        /// </summary>
+        /// <param name="Context"></param>
         private void ExportMeshes_OnExecute(NameValueMap Context)
         {
-            Utilities.GUI.LoadFromInventor();
+            if(Utilities.GUI.SkeletonBase != null)
+            {
+                Utilities.GUI.SetNew();
+            }
+            Utilities.GUI.ExportMeshes();
         }
 
+        /// <summary>
+        /// Opens a <see cref="FolderBrowserDialog"/> and prompts the user to select a robot folder. 
+        /// Note: soon this should be replaced with an <see cref="OpenFileDialog"/> when the old format is merged into one file.
+        /// </summary>
+        /// <param name="Context"></param>
         private void LoadExportedRobotButton_OnExecute(NameValueMap Context)
         {
-            Utilities.GUI.OpenExisting();
+            Utilities.GUI.OpenExisting(ValidateAssembly);
         }
 
+        /// <summary>
+        /// Opens a <see cref="FolderBrowserDialog"/> and prompts the user to select the folder where they want their robot to be saved.
+        /// Note: soon this should be replaced with an <see cref="OpenFileDialog"/> when the old format is merged into one file.
+        /// </summary>
+        /// <param name="Context"></param>
         private void ExportJointsButton_OnExecute(NameValueMap Context)
         {
+            if(Utilities.GUI.SkeletonBase == null)
+            {
+                MessageBox.Show("Please load or generate meshes before exporting joints");
+                return;
+            }
             Utilities.GUI.SaveRobot(true);
         }
 
@@ -396,10 +413,14 @@ namespace BxDRobotExporter
         /// <param name="HandlingCode"></param>
         private void _OnHelp(NameValueMap Context, out HandlingCodeEnum HandlingCode)
         {
-            Process.Start("http://bxd.autodesk.com/tutorials.html");
+            Process.Start("http://bxd.autodesk.com/tutorial-robot.html");
             HandlingCode = HandlingCodeEnum.kEventHandled;
         }
 
+        /// <summary>
+        /// Selects all the parts in inventor associated with the given joint or joints.
+        /// </summary>
+        /// <param name="nodes"></param>
         private void JointEditorPane_SelectedJoint(List<RigidNode_Base> nodes)
         {
             ChildHighlight.Clear();
@@ -410,19 +431,25 @@ namespace BxDRobotExporter
             }
             foreach(RigidNode_Base node in nodes)
             {
-                SelectNode(node.GetModelID().Substring(0, node.GetModelID().Length - 3), JointNodeType.kChildNode);
+                SelectNode(node.GetModelID().Substring(0, node.GetModelID().Length - 3), JointNodeTypeEnum.kChildNode);
                 if (node.GetParent() != null && IsParentHighlight)
                 {
                     string[] Nodes = node.GetParent().ModelFullID.Split(new char[] { '-', '_', '-' });
                     foreach(string name in Nodes)
                     {
-                        SelectNode(name, JointNodeType.kParentNode);
+                        SelectNode(name, JointNodeTypeEnum.kParentNode);
                     }
                 }
             }
 
         }
 
+        /// <summary>
+        /// Called when the user presses 'OK' in the settings menu
+        /// </summary>
+        /// <param name="Child"></param>
+        /// <param name="Parent"></param>
+        /// <param name="IsParentHighlight"></param>
         private void ExporterSettings_SettingsChanged(System.Drawing.Color Child, System.Drawing.Color Parent, bool IsParentHighlight)
         {
             ChildHighlight.Color = Utilities.GetInventorColor(Child);
@@ -431,8 +458,82 @@ namespace BxDRobotExporter
         }
         #endregion
 
+        #region Miscellaneous Methods
+        /// <summary>
+        /// Checks if a baseNode matches up with the assembly. Passed as a <see cref="ValidationAction"/> to
+        /// </summary>
+        /// <param name="baseNode"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        private bool ValidateAssembly(RigidNode_Base baseNode, out string message)
+        {
+            int ValidationCount = 0;
+            int FailedCount = 0;
+            List<RigidNode_Base> nodes = baseNode.ListAllNodes();
+            foreach (RigidNode_Base node in nodes)
+            {
+                bool FailedValidation = false;
+                foreach (string componentName in node.ModelFullID.Split(new string[] { "-_-" }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (!CheckForOccurrence(componentName))
+                    {
+                        FailedCount++;
+                        FailedValidation = true;
+                    }
+                }
+                if (!FailedValidation)
+                {
+                    ValidationCount++;
+                }
+            }
+            if (ValidationCount == nodes.Count)
+            {
+                message = string.Format("The assembly validated successfully. {0} / {1} nodes checked out.", ValidationCount, nodes.Count);
+                return true;
+            }
+            else
+            {
+                message = string.Format("The assembly failed to validate. {0} / {1} nodes checked out. {2} parts/assemblies were not found.", ValidationCount, nodes.Count, FailedCount);
+                return false;
+            }
+        }
+
+        private bool CheckForOccurrence(string name)
+        {
+            foreach (ComponentOccurrence component in AsmDocument.ComponentDefinition.Occurrences)
+            {
+                if (component.Name == name)
+                    return true;
+            }
+            return false;
+        }
+
+        private void SelectNode(string Name, JointNodeTypeEnum jointNodeType)
+        {
+            switch (jointNodeType)
+            {
+                case JointNodeTypeEnum.kParentNode:
+                    foreach (ComponentOccurrence Occ in AsmDocument.ComponentDefinition.Occurrences)
+                    {
+                        if (Occ.Name == Name)
+                        {
+                            ParentHighlight.AddItem(Occ);
+                        }
+                    }
+                    break;
+                case JointNodeTypeEnum.kChildNode:
+                    foreach (ComponentOccurrence Occ in AsmDocument.ComponentDefinition.Occurrences)
+                    {
+                        if (Occ.Name == Name)
+                        {
+                            ChildHighlight.AddItem(Occ);
+                        }
+                    }
+                    break;
+            }
 
 
-
+        } 
+        #endregion
     }
 }

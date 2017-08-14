@@ -293,5 +293,4 @@ partial class SynthesisGUI
     private System.Windows.Forms.ToolStripMenuItem helpAbout;
     public BXDAEditorPane bxdaEditorPane1;
     public JointEditorPane jointEditorPane1;
-    public EditorsLibrary.RobotViewer robotViewer1;
 }

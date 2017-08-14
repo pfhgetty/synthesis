@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Inventor;
 using System.Windows.Forms;
 using System.Drawing;
+using System.IO;
+using System.Diagnostics;
 
 namespace BxDRobotExporter
 {
@@ -13,7 +15,6 @@ namespace BxDRobotExporter
     {
         //TODO: Maybe make less stuff static. Or just make it a singleton. 
         static internal SynthesisGUI GUI;
-        //static DockableWindow EmbededViewer;
         static DockableWindow EmbededJointPane;
         static DockableWindow EmbededBxDViewer;
 
@@ -23,66 +24,45 @@ namespace BxDRobotExporter
         /// <param name="app"></param>
         public static void CreateDockableWindows(Inventor.Application app)
         {
-            try
-            {
-                IntPtr[] children = CreateChildDialog();
+            IntPtr[] children = CreateChildDialog();
 
-                UserInterfaceManager uiMan = app.UserInterfaceManager;
-                //EmbededViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:EmbededLegacy0", "Robot Viewer");
-                EmbededJointPane = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:JointEditor", "Robot Joint Editor");
-                EmbededBxDViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:BxDViewer", "Robot BxD Viewer");
+            UserInterfaceManager uiMan = app.UserInterfaceManager;
+            EmbededJointPane = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:JointEditor", "Robot Joint Editor");
+            EmbededBxDViewer = uiMan.DockableWindows.Add(Guid.NewGuid().ToString(), "BxD:RobotExporter:BxDViewer", "Robot BxD Viewer");
 
-                #region EmbededViewer (Inactive)
-                //if (EmbededViewer.IsCustomized)
-                //    EmbededViewer.DockingState = DockingStateEnum.kDockLastKnown;
-                //else
-                //    EmbededViewer.DockingState = DockingStateEnum.kDockBottom;
-                //EmbededViewer.ShowVisibilityCheckBox = true;
-                //EmbededViewer.Visible = true;
-                //EmbededViewer.ShowTitleBar = false;
-                //EmbededViewer.AddChild(children[0]);
-                #endregion
+            #region EmbededJointPane
+            EmbededJointPane.DockingState = DockingStateEnum.kDockBottom;
+            EmbededJointPane.Height = 250;
+            EmbededJointPane.ShowVisibilityCheckBox = true;
+            EmbededJointPane.ShowTitleBar = true;
+            EmbededJointPane.AddChild(children[0]);
+            #endregion
 
-                #region EmbededJointPane
-                if (EmbededJointPane.IsCustomized)
-                    EmbededJointPane.DockingState = DockingStateEnum.kDockLastKnown;
-                else
-                    EmbededJointPane.DockingState = DockingStateEnum.kDockBottom;
-                EmbededJointPane.ShowVisibilityCheckBox = true;
-                EmbededJointPane.Visible = true;
-                EmbededJointPane.ShowTitleBar = false;
-                EmbededJointPane.AddChild(children[0]);
-                #endregion
+            #region EmbededBxDViewer
+            EmbededBxDViewer.DockingState = DockingStateEnum.kDockRight;
+            EmbededBxDViewer.Width = uiMan.DockableWindows["model"].Width;
+            EmbededBxDViewer.ShowVisibilityCheckBox = true;
+            EmbededBxDViewer.ShowTitleBar = true;
+            EmbededBxDViewer.AddChild(children[1]);
+            #endregion
 
-                #region EmbededBxDViewer
-                if (EmbededJointPane.IsCustomized)
-                    EmbededJointPane.DockingState = DockingStateEnum.kDockLastKnown;
-                else
-                    EmbededJointPane.DockingState = DockingStateEnum.kDockBottom;
-                EmbededBxDViewer.ShowVisibilityCheckBox = true;
-                EmbededBxDViewer.ShowTitleBar = false;
-                EmbededBxDViewer.SetMinimumSize(100, 100);
-                EmbededBxDViewer.Visible = true;
-
-                EmbededBxDViewer.AddChild(children[1]);
-                #endregion
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.ToString());
-            }
+            EmbededBxDViewer.Visible = true;
+            EmbededJointPane.Visible = true;
         }
 
         private static IntPtr[] CreateChildDialog()
         {
             try
             {
-                GUI = new SynthesisGUI();
-                GUI.Opacity = 0.00d;
+                GUI = new SynthesisGUI(StandardAddInServer.Instance.Logger)
+                {
+                    Opacity = 0.00d
+                };
                 GUI.Show();
+                GUI.Hide();
                 GUI.Opacity = 1.00d;
 
-                return new IntPtr[] { /*GUI.robotViewer1.Handle, */GUI.JointPaneForm.Handle, GUI.ViewerPaneForm.Handle };
+                return new IntPtr[] { GUI.JointPaneForm.Handle, GUI.BXDAViewerPaneForm.Handle };
             }
             catch (Exception e)
             {
@@ -109,6 +89,9 @@ namespace BxDRobotExporter
             }
         }
 
+        /// <summary>
+        /// Hides the dockable windows. Used when switching documents. Called in <see cref="StandardAddInServer.ApplicationEvents_OnDeactivateDocument(_Document, EventTimingEnum, NameValueMap, out HandlingCodeEnum)"/>.
+        /// </summary>
         public static void HideDockableWindows()
         {
             if (/*EmbededViewer != null &&*/ EmbededJointPane != null && EmbededBxDViewer != null)
@@ -118,6 +101,10 @@ namespace BxDRobotExporter
                 EmbededBxDViewer.Visible = false;
             }
         }
+
+        /// <summary>
+        /// Shows the dockable windows again when assembly document is switched back to. Called in <see cref="StandardAddInServer.ApplicationEvents_OnActivateDocument(_Document, EventTimingEnum, NameValueMap, out HandlingCodeEnum)"/>.
+        /// </summary>
         public static void ShowDockableWindows()
         {
             if (/*EmbededViewer != null && */EmbededJointPane != null && EmbededBxDViewer != null)
@@ -128,9 +115,14 @@ namespace BxDRobotExporter
             }
         }
 
+        /// <summary>
+        /// Converts from a <see cref="System.Drawing.Color"/> to an <see cref="Inventor.Color"/>
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns></returns>
         public static Inventor.Color GetInventorColor(System.Drawing.Color color)
         {
-            return StandardAddInServer.MainApplication.TransientObjects.CreateColor(color.R, color.G, color.B);
+            return StandardAddInServer.Instance.MainApplication.TransientObjects.CreateColor(color.R, color.G, color.B);
         }
     }
 }

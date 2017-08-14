@@ -14,19 +14,20 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using EditorsLibrary;
 using OGLViewer;
-using JointResolver.ControlGUI;
 
+public delegate bool ValidationAction(RigidNode_Base baseNode, out string message);
 
 [GuidAttribute("ec18f8d4-c13e-4c86-8148-7414efb6e1e2")]
 public partial class SynthesisGUI : Form
 {
-
+    private ExporterLogger logger;
     public static SynthesisGUI Instance;
+    public static bool LiteMode = true;
 
     public static ExporterSettingsForm.PluginSettingsValues ExporterSettings;
     public static ViewerSettingsForm.ViewerSettingsValues ViewerSettings;
 
-    public Form ViewerPaneForm = new Form
+    public Form BXDAViewerPaneForm = new Form
     {
         FormBorderStyle = FormBorderStyle.None
     };
@@ -40,6 +41,8 @@ public partial class SynthesisGUI : Form
 
     private ExporterForm exporter;
 
+    private LiteExporterForm liteExporter;
+
     /// <summary>
     /// The last path that was saved to/opened from
     /// </summary>
@@ -47,32 +50,22 @@ public partial class SynthesisGUI : Form
 
     static SynthesisGUI()
     {
-
-
-        BXDSettings.Load();
-        object exportSettings = BXDSettings.Instance.GetSettingsObject("Plugin Settings");
-        object viewSettings = BXDSettings.Instance.GetSettingsObject("Viewer Settings");
-
-        ExporterSettings = (exportSettings != null) ?
-                           (ExporterSettingsForm.PluginSettingsValues)exportSettings : ExporterSettingsForm.GetDefaultSettings();
-        ViewerSettings = (viewSettings != null) ? (ViewerSettingsForm.ViewerSettingsValues)viewSettings : ViewerSettingsForm.GetDefaultSettings();
+        ExporterSettings = ExporterSettingsForm.GetDefaultSettings();
+        ViewerSettings = ViewerSettingsForm.GetDefaultSettings();
     }
 
-    public SynthesisGUI(bool MakeOwners = false)
+    public SynthesisGUI(ExporterLogger logger, bool MakeOwners = false)
     {
+        this.logger = logger;
         InitializeComponent();
 
         Instance = this;
 
-        robotViewer1 = new RobotViewer();
-        if (MakeOwners) robotViewer1.Owner = this;
-        robotViewer1.LoadSettings(ViewerSettings);
-        robotViewer1.FormClosing += Generic_FormClosing;
 
         bxdaEditorPane1.Units = ViewerSettings.modelUnits;
-        ViewerPaneForm.Controls.Add(bxdaEditorPane1);
-        if (MakeOwners) ViewerPaneForm.Owner = this;
-        ViewerPaneForm.FormClosing += Generic_FormClosing;
+        BXDAViewerPaneForm.Controls.Add(bxdaEditorPane1);
+        if (MakeOwners) BXDAViewerPaneForm.Owner = this;
+        BXDAViewerPaneForm.FormClosing += Generic_FormClosing;
 
         JointPaneForm.Controls.Add(jointEditorPane1);
         if (MakeOwners) JointPaneForm.Owner = this;
@@ -120,8 +113,6 @@ public partial class SynthesisGUI : Form
         this.FormClosing += new FormClosingEventHandler(delegate (object sender, FormClosingEventArgs e)
         {
             if (SkeletonBase != null && !WarnUnsaved()) e.Cancel = true;
-            else BXDSettings.Save();
-
             InventorManager.ReleaseInventor();
         });
 
@@ -137,10 +128,8 @@ public partial class SynthesisGUI : Form
                     node.GetSkeletalJoint().cDriver.GetInfo<WheelDriverMeta>().radius == 0 &&
                     node is OGL_RigidNode)
                 {
-                    float radius, width;
-                    BXDVector3 center;
 
-                    (node as OGL_RigidNode).GetWheelInfo(out radius, out width, out center);
+                    (node as OGL_RigidNode).GetWheelInfo(out float radius, out float width, out BXDVector3 center);
 
                     WheelDriverMeta wheelDriver = node.GetSkeletalJoint().cDriver.GetInfo<WheelDriverMeta>();
                     wheelDriver.center = center;
@@ -152,11 +141,7 @@ public partial class SynthesisGUI : Form
             }
         };
 
-        jointEditorPane1.SelectedJoint += robotViewer1.SelectJoints;
         jointEditorPane1.SelectedJoint += bxdaEditorPane1.SelectJoints;
-
-        robotViewer1.NodeSelected += jointEditorPane1.AddSelection;
-        robotViewer1.NodeSelected += bxdaEditorPane1.AddSelection;
 
         bxdaEditorPane1.NodeSelected += (BXDAMesh mesh) =>
             {
@@ -165,14 +150,6 @@ public partial class SynthesisGUI : Form
 
                 jointEditorPane1.AddSelection(nodes[Meshes.IndexOf(mesh)], true);
             };
-
-        bxdaEditorPane1.NodeSelected += (BXDAMesh mesh) =>
-        {
-            List<RigidNode_Base> nodes = new List<RigidNode_Base>();
-            SkeletonBase.ListAllNodes(nodes);
-
-            robotViewer1.SelectJoints(nodes.GetRange(Meshes.IndexOf(mesh), 1));
-        };
     }
 
     private void Generic_FormClosing(object sender, FormClosingEventArgs e)
@@ -188,9 +165,7 @@ public partial class SynthesisGUI : Form
     private void SynthesisGUI_Shown(object sender, EventArgs e)
     {
         Hide();
-        robotViewer1.Show();
-        robotViewer1.Hide();
-        ViewerPaneForm.Show();
+        BXDAViewerPaneForm.Show();
         JointPaneForm.Show();
     }
 
@@ -207,17 +182,25 @@ public partial class SynthesisGUI : Form
     /// <summary>
     /// Export a robot from Inventor
     /// </summary>
-    public void LoadFromInventor()
+    public void ExportMeshes()
     {
         if (SkeletonBase != null && !WarnUnsaved()) return;
 
         try
         {
+
             var exporterThread = new Thread(() =>
             {
-                exporter = new ExporterForm(ExporterSettings);
-
-                exporter.ShowDialog();
+                if (!LiteMode)
+                {
+                    exporter = new ExporterForm(ExporterSettings);
+                    exporter.ShowDialog(); 
+                }
+                else
+                {
+                    liteExporter = new LiteExporterForm(logger);
+                    liteExporter.ShowDialog();
+                }
             });
 
             exporterThread.SetApartmentState(ApartmentState.STA);
@@ -240,9 +223,10 @@ public partial class SynthesisGUI : Form
     }
 
     /// <summary>
-    /// Open a previously exported robot
+    /// Open a previously exported robot. 
     /// </summary>
-    public void OpenExisting()
+    /// <param name="validate">If it is not null, this will validate the open inventor assembly.</param>
+    public void OpenExisting(ValidationAction validate = null)
     {
         if (SkeletonBase != null && !WarnUnsaved()) return;
 
@@ -254,6 +238,33 @@ public partial class SynthesisGUI : Form
         {
             List<RigidNode_Base> nodes = new List<RigidNode_Base>();
             SkeletonBase = BXDJSkeleton.ReadSkeleton(dirPath + "\\skeleton.bxdj");
+
+            if(validate != null)
+            {
+                if(!validate(SkeletonBase, out string message))
+                {
+                    while (true)
+                    {
+                        DialogResult result = MessageBox.Show(message, "Assembly Validation", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                        if (result == DialogResult.Retry)
+                            continue;
+                        if (result == DialogResult.Abort)
+                        {
+                            return;
+                        }
+                        break;
+                    }
+                }
+                #region DEBUG
+#if DEBUG
+                else
+                {
+                    MessageBox.Show(message);
+                }
+#endif 
+                #endregion
+            }
+
             SkeletonBase.ListAllNodes(nodes);
 
             Meshes = new List<BXDAMesh>();
@@ -274,7 +285,7 @@ public partial class SynthesisGUI : Form
         }
         catch (Exception e)
         {
-            MessageBox.Show(e.Message);
+            MessageBox.Show(e.ToString());
         }
 
         lastDirPath = dirPath;
@@ -392,9 +403,11 @@ public partial class SynthesisGUI : Form
 
         var dialogThread = new Thread(() =>
         {
-            FolderBrowserDialog openDialog = new FolderBrowserDialog();
-            openDialog.ShowNewFolderButton = true;
-            openDialog.Description = "Choose Robot Folder";
+            FolderBrowserDialog openDialog = new FolderBrowserDialog()
+            {
+                ShowNewFolderButton = true,
+                Description = "Choose Robot Folder"
+            };
             DialogResult openResult = openDialog.ShowDialog();
 
             if (openResult == DialogResult.OK) dirPath = openDialog.SelectedPath;
@@ -448,7 +461,6 @@ public partial class SynthesisGUI : Form
     {
         jointEditorPane1.SetSkeleton(SkeletonBase);
         bxdaEditorPane1.loadModel(Meshes);
-        robotViewer1.LoadModel(SkeletonBase, Meshes);
     }
 
     protected override void OnResize(EventArgs e)
@@ -473,28 +485,28 @@ public partial class SynthesisGUI : Form
 
         eSettingsForm.ShowDialog(this);
 
-        BXDSettings.Instance.AddSettingsObject("Plugin Settings", ExporterSettingsForm.values);
+        //BXDSettings.Instance.AddSettingsObject("Plugin Settings", ExporterSettingsForm.values);
         ExporterSettings = ExporterSettingsForm.values;
     }
 
     public void SettingsViewer_OnClick(object sender, System.EventArgs e)
     {
-        var defaultValues = BXDSettings.Instance.GetSettingsObject("Viewer Settings");
+        //var defaultValues = BXDSettings.Instance.GetSettingsObject("Viewer Settings");
 
-        ViewerSettingsForm vSettingsForm = new ViewerSettingsForm((defaultValues != null) ? (ViewerSettingsForm.ViewerSettingsValues)defaultValues :
-                                                                                ViewerSettingsForm.GetDefaultSettings());
+        //ViewerSettingsForm vSettingsForm = new ViewerSettingsForm((defaultValues != null) ? (ViewerSettingsForm.ViewerSettingsValues)defaultValues :
+        //                                                                        ViewerSettingsForm.GetDefaultSettings());
 
-        vSettingsForm.ShowDialog(this);
+        //vSettingsForm.ShowDialog(this);
 
-        BXDSettings.Instance.AddSettingsObject("Viewer Settings", vSettingsForm.values);
-        ViewerSettings = vSettingsForm.values;
+        //BXDSettings.Instance.AddSettingsObject("Viewer Settings", vSettingsForm.values);
+        //ViewerSettings = vSettingsForm.values;
 
-        robotViewer1.LoadSettings(ViewerSettings);
-        bxdaEditorPane1.Units = ViewerSettings.modelUnits;
+        //robotViewer1.LoadSettings(ViewerSettings);
+        //bxdaEditorPane1.Units = ViewerSettings.modelUnits;
     }
 
     public void FileLoad_OnClick(object sender, System.EventArgs e)
     {
-        LoadFromInventor();
+        ExportMeshes();
     }
 }

@@ -111,8 +111,8 @@ public class Exporter
 
         return baseNode;
     }
-
-    public static List<BXDAMesh> ExportMeshes(RigidNode_Base baseNode, bool useOCL)
+    
+    public static List<BXDAMesh> ExportMeshes(RigidNode_Base baseNode, bool useOCL = false)
     {
         SurfaceExporter surfs = new SurfaceExporter();
         BXDJSkeleton.SetupFileNames(baseNode, true);
@@ -164,5 +164,4 @@ public class Exporter
 
         return meshes;
     }
-
 }

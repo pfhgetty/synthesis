@@ -2,10 +2,8 @@
 <Weavers>
   <Costura>
     <IncludeAssemblies>
-      EditorsLibrary
       OpenTK
       OpenTK.GLControl
-      OGLViewer
       SimulatorAPI
       MIConvexHull
     </IncludeAssemblies>

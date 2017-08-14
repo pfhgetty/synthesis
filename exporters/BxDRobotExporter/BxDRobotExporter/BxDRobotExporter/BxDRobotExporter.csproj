@@ -99,10 +99,10 @@
     </Reference>
     <Reference Include="Microsoft.VisualBasic.Compatibility" />
     <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
+      <HintPath>..\..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK.GLControl, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.GLControl.1.1.2349.61993\lib\NET40\OpenTK.GLControl.dll</HintPath>
+      <HintPath>..\..\packages\OpenTK.GLControl.1.1.2349.61993\lib\NET40\OpenTK.GLControl.dll</HintPath>
     </Reference>
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -128,37 +128,14 @@
     <Compile Include="Forms\DebugHighlightForm.Designer.cs">
       <DependentUpon>DebugHighlightForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="JointData.cs" />
-    <Compile Include="Forms\EditLimits.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EditLimits.Designer.cs">
-      <DependentUpon>EditLimits.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ConfigureJointForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ConfigureJointForm.Designer.cs">
-      <DependentUpon>ConfigureJointForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="JointResolver.cs" />
+    <Compile Include="JointNodeType.cs" />
     <Compile Include="PictureDispConverter.cs" />
     <Compile Include="Resource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
-    <Compile Include="RobotSaver.cs" />
     <Compile Include="StandardAddInServer.cs" />
-    <Compile Include="STLData.cs" />
-    <Compile Include="TempReader.cs" />
-    <Compile Include="TempWriter.cs" />
-    <Compile Include="Forms\UserControl1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\UserControl1.Designer.cs">
-      <DependentUpon>UserControl1.cs</DependentUpon>
-    </Compile>
     <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -174,18 +151,10 @@
     <EmbeddedResource Include="Forms\DebugHighlightForm.resx">
       <DependentUpon>DebugHighlightForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EditLimits.resx">
-      <DependentUpon>EditLimits.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ConfigureJointForm.resx">
-      <DependentUpon>ConfigureJointForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Resource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UserControl1.resx">
-      <DependentUpon>UserControl1.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -231,17 +200,9 @@
       <Project>{52dc911d-ad5d-4d01-9fc1-22aaada97740}</Project>
       <Name>SimulatorAPI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\robot_exporter\EditorsLibrary\EditorsLibrary.csproj">
-      <Project>{87b8c386-74ff-4f9a-a3f6-20381599e464}</Project>
-      <Name>EditorsLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\robot_exporter\JointResolver\Inventor_Exporter.csproj">
+    <ProjectReference Include="..\..\robot_exporter\JointResolver\RobotExportAPI.csproj">
       <Project>{352cde72-aee2-4085-adc5-99a860ea0768}</Project>
-      <Name>Inventor_Exporter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\robot_exporter\OGLViewer\OGLViewer.csproj">
-      <Project>{a2c2d3bd-9d46-4ca3-8c03-20dac08d38a8}</Project>
-      <Name>OGLViewer</Name>
+      <Name>RobotExportAPI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
