@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace StandaloneViewer.Properties {
+namespace OGLViewer.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace StandaloneViewer.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("StandaloneViewer.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("OGLViewer.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,22 +61,22 @@ namespace StandaloneViewer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static System.Drawing.Bitmap icon {
+        internal static byte[] FragmentShader {
             get {
-                object obj = ResourceManager.GetObject("icon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                object obj = ResourceManager.GetObject("FragmentShader", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static System.Drawing.Bitmap SmallIcon {
+        internal static byte[] VertexShader {
             get {
-                object obj = ResourceManager.GetObject("SmallIcon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                object obj = ResourceManager.GetObject("VertexShader", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

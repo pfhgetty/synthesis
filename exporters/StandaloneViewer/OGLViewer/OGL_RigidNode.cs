@@ -71,7 +71,7 @@ namespace OGLViewer
         /// <summary>
         /// Get the number of collision submeshes on the part
         /// </summary>
-        public int colliderCount
+        public int ColliderCount
         {
             get
             {
@@ -85,7 +85,7 @@ namespace OGLViewer
         /// <summary>
         /// Get the number of visual submeshes on the part
         /// </summary>
-        public int meshCount
+        public int MeshCount
         {
             get
             {
@@ -99,7 +99,7 @@ namespace OGLViewer
         /// <summary>
         /// The total number of triangles in the part's visual submeshes
         /// </summary>
-        public int meshTriangleCount
+        public int MeshTriangleCount
         {
             get;
             private set;
@@ -108,7 +108,7 @@ namespace OGLViewer
         /// <summary>
         /// The total number of triangles in the part's collision submeshes
         /// </summary>
-        public int colliderTriangleCount
+        public int ColliderTriangleCount
         {
             get;
             private set;
@@ -147,7 +147,7 @@ namespace OGLViewer
         /// <summary>
         /// Free resources used by OpenGL
         /// </summary>
-        public void destroy()
+        public void Destroy()
         {
             SelectManager.FreeGUID(myGUID);
             foreach (VBOMesh mesh in models)
@@ -216,28 +216,28 @@ namespace OGLViewer
         /// Load the data from a BXDAMesh into the node
         /// </summary>
         /// <param name="mesh">The mesh to load from</param>
-        public void loadMeshes(BXDAMesh mesh)
+        public void LoadMeshes(BXDAMesh mesh)
         {
             this.centerOfMass = mesh.physics.centerOfMass;
             baseMesh = mesh;
 
-            meshTriangleCount = 0;
+            MeshTriangleCount = 0;
             foreach (BXDAMesh.BXDASubMesh sub in mesh.meshes)
             {
                 models.Add(new VBOMesh(sub));
                 foreach (BXDAMesh.BXDASurface surf in sub.surfaces)
                 {
-                    meshTriangleCount += surf.indicies.Length / 3;
+                    MeshTriangleCount += surf.indicies.Length / 3;
                 }
             }
 
-            colliderTriangleCount = 0;
+            ColliderTriangleCount = 0;
             foreach (BXDAMesh.BXDASubMesh sub in mesh.colliders)
             {
                 colliders.Add(new VBOMesh(sub));
                 foreach (BXDAMesh.BXDASurface surf in sub.surfaces)
                 {
-                    colliderTriangleCount += surf.indicies.Length / 3;
+                    ColliderTriangleCount += surf.indicies.Length / 3;
                 }
             }
         }
@@ -246,7 +246,7 @@ namespace OGLViewer
         /// Compute the positions and rotations of this node and its children
         /// </summary>
         /// <param name="moveJoints">Whether or not to move the node on its joints</param>
-        public void compute(bool moveJoints)
+        public void Compute(bool moveJoints)
         {
             if (moveJoints) timeStep += 0.005f;
             else timeStep = 0.0f;
@@ -259,24 +259,20 @@ namespace OGLViewer
                 switch (GetSkeletalJoint().GetJointType())
                 {
                     case SkeletalJointType.CYLINDRICAL:
-                        CylindricalJoint_Base cjb = (CylindricalJoint_Base)GetSkeletalJoint();
-                        requestedRotation = cjb.currentAngularPosition;
-                        requestedTranslation = cjb.currentLinearPosition;
+                        requestedRotation = ((CylindricalJoint_Base)GetSkeletalJoint()).currentAngularPosition;
+                        requestedTranslation = ((CylindricalJoint_Base)GetSkeletalJoint()).currentLinearPosition;
                         break;
                     case SkeletalJointType.ROTATIONAL:
-                        RotationalJoint_Base rjb = (RotationalJoint_Base)GetSkeletalJoint();
-                        requestedRotation = rjb.currentAngularPosition;
+                        requestedRotation = (((RotationalJoint_Base)GetSkeletalJoint()).hasAngularLimit) ? ((RotationalJoint_Base)GetSkeletalJoint()).currentAngularPosition + 1.57f : ((RotationalJoint_Base)GetSkeletalJoint()).currentAngularPosition;
                         requestedTranslation = 0;
                         break;
                     case SkeletalJointType.LINEAR:
-                        LinearJoint_Base ljb = (LinearJoint_Base)GetSkeletalJoint();
                         requestedRotation = 0;
-                        requestedTranslation = ljb.currentLinearPosition;
+                        requestedTranslation = ((LinearJoint_Base)GetSkeletalJoint()).currentLinearPosition;
                         break;
                 }
             }
             #endregion
-
             myTrans = Matrix4.Identity;
             if (GetSkeletalJoint() != null)
             {
@@ -294,7 +290,7 @@ namespace OGLViewer
                                             (dof.hasAngularLimits() ?
                                                 (dof.upperLimit - dof.lowerLimit) / 2.0f : 3.14f) +
                                             (dof.hasAngularLimits() ?
-                                                dof.lowerLimit : 0);
+                                                dof.lowerLimit : 0f);
 
                     requestedRotation = Math.Max(dof.lowerLimit, Math.Min(dof.upperLimit, requestedRotation));
                     myTrans *= Matrix4.CreateTranslation(-dof.basePoint.ToTK());
@@ -303,11 +299,12 @@ namespace OGLViewer
                 }
                 foreach (LinearDOF dof in GetSkeletalJoint().GetLinearDOF())
                 {
+
                     requestedTranslation = (float)(Math.Cos(timeStep) + 0.9f) * 1.2f *
                                                 (dof.hasLowerLinearLimit() && dof.hasUpperLinearLimit() ?
-                                                    (dof.upperLimit - dof.lowerLimit) / 2.0f : 3.14f) +
+                                                    ((dof.upperLimit) - (dof.lowerLimit)) / 2.0f : 3.14f) +
                                                 (dof.hasLowerLinearLimit() ?
-                                                    dof.lowerLimit : 0);
+                                                    (dof.lowerLimit) : 0.0f);
 
                     requestedTranslation = Math.Max(dof.lowerLimit, Math.Min(dof.upperLimit, requestedTranslation));
                     myTrans *= Matrix4.CreateTranslation(dof.translationalAxis.ToTK() * (requestedTranslation - dof.currentPosition));
@@ -322,7 +319,7 @@ namespace OGLViewer
             foreach (KeyValuePair<SkeletalJoint_Base, RigidNode_Base> pair in Children)
             {
                 OGL_RigidNode child = ((OGL_RigidNode)pair.Value);
-                child.compute(moveJoints);
+                child.Compute(moveJoints);
             }
         }
 
@@ -332,7 +329,7 @@ namespace OGLViewer
         /// <param name="select">Whether or not the node is being rendered for highlight selection</param>
         /// <param name="highlightColor">The color to highlight the node if it is active</param>
         /// <param name="tintColor">The color to tint the node on hover</param>
-        public void render(bool select = false, uint highlightColor = 0xFFFF0000, uint tintColor = 0xFFBBFFBB)
+        public void Render(bool select = false, uint highlightColor = 0xFFFF0000, uint tintColor = 0xFFBBFFBB)
         {
             int tintLocation = 0;
             HighlightState tmpHighlight = highlight;
@@ -406,7 +403,7 @@ namespace OGLViewer
         /// <summary>
         /// Render the node's center of mass and limits of motion along the joint it is connected to (If any)
         /// </summary>
-        public void renderDebug(bool drawAxes)
+        public void RenderDebug(bool drawAxes)
         {
             // Debug Settings
             GL.UseProgram(0);

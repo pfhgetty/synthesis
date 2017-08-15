@@ -128,8 +128,10 @@ public partial class SynthesisGUI : Form
                     node.GetSkeletalJoint().cDriver.GetInfo<WheelDriverMeta>().radius == 0 &&
                     node is OGL_RigidNode)
                 {
-
-                    (node as OGL_RigidNode).GetWheelInfo(out float radius, out float width, out BXDVector3 center);
+                    float radius;
+                    float width;
+                    BXDVector3 center;
+                    (node as OGL_RigidNode).GetWheelInfo(out radius, out width, out center);
 
                     WheelDriverMeta wheelDriver = node.GetSkeletalJoint().cDriver.GetInfo<WheelDriverMeta>();
                     wheelDriver.center = center;
@@ -182,9 +184,9 @@ public partial class SynthesisGUI : Form
     /// <summary>
     /// Export a robot from Inventor
     /// </summary>
-    public void ExportMeshes()
+    public bool ExportMeshes()
     {
-        if (SkeletonBase != null && !WarnUnsaved()) return;
+        if (SkeletonBase != null && !WarnUnsaved()) return false;
 
         try
         {
@@ -210,23 +212,33 @@ public partial class SynthesisGUI : Form
 
             GC.Collect();
         }
-        catch (System.Runtime.InteropServices.InvalidComObjectException)
+        catch (InvalidComObjectException)
         {
+        }
+        catch (TaskCanceledException)
+        {
+            return false;
         }
         catch (Exception e)
         {
             MessageBox.Show(e.Message);
-            return;
+            return false;
         }
 
+        List<RigidNode_Base> nodes = SkeletonBase.ListAllNodes();
+        for (int i = 0; i < Meshes.Count; i++)
+        {
+            ((OGL_RigidNode)nodes[i]).loadMeshes(Meshes[i]);
+        }
         ReloadPanels();
+        return true;
     }
 
     /// <summary>
     /// Open a previously exported robot. 
     /// </summary>
     /// <param name="validate">If it is not null, this will validate the open inventor assembly.</param>
-    public void OpenExisting(ValidationAction validate = null)
+    public void OpenExisting()
     {
         if (SkeletonBase != null && !WarnUnsaved()) return;
 
@@ -238,32 +250,6 @@ public partial class SynthesisGUI : Form
         {
             List<RigidNode_Base> nodes = new List<RigidNode_Base>();
             SkeletonBase = BXDJSkeleton.ReadSkeleton(dirPath + "\\skeleton.bxdj");
-
-            if(validate != null)
-            {
-                if(!validate(SkeletonBase, out string message))
-                {
-                    while (true)
-                    {
-                        DialogResult result = MessageBox.Show(message, "Assembly Validation", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-                        if (result == DialogResult.Retry)
-                            continue;
-                        if (result == DialogResult.Abort)
-                        {
-                            return;
-                        }
-                        break;
-                    }
-                }
-                #region DEBUG
-#if DEBUG
-                else
-                {
-                    MessageBox.Show(message);
-                }
-#endif 
-                #endregion
-            }
 
             SkeletonBase.ListAllNodes(nodes);
 
@@ -293,12 +279,80 @@ public partial class SynthesisGUI : Form
         ReloadPanels();
     }
 
+    public bool OpenExisting(ValidationAction validate)
+    {
+        if (SkeletonBase != null && !WarnUnsaved()) return false;
+
+        string dirPath = OpenFolderPath();
+
+        if (dirPath == null) return false;
+
+        try
+        {
+            List<RigidNode_Base> nodes = new List<RigidNode_Base>();
+            SkeletonBase = BXDJSkeleton.ReadSkeleton(dirPath + "\\skeleton.bxdj");
+
+            if (validate != null)
+            {
+                if (!validate(SkeletonBase, out string message))
+                {
+                    while (true)
+                    {
+                        DialogResult result = MessageBox.Show(message, "Assembly Validation", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                        if (result == DialogResult.Retry)
+                            continue;
+                        if (result == DialogResult.Abort)
+                        {
+                            return false;
+                        }
+                        break;
+                    }
+                }
+                #region DEBUG
+#if DEBUG
+                else
+                {
+                    MessageBox.Show(message);
+                }
+#endif 
+                #endregion
+            }
+
+            SkeletonBase.ListAllNodes(nodes);
+
+            Meshes = new List<BXDAMesh>();
+
+            foreach (RigidNode_Base n in nodes)
+            {
+                BXDAMesh mesh = new BXDAMesh();
+                mesh.ReadFromFile(dirPath + "\\" + n.ModelFileName);
+
+                if (!n.GUID.Equals(mesh.GUID))
+                {
+                    MessageBox.Show(n.ModelFileName + " has been modified.", "Could not load mesh.");
+                    return false;
+                }
+
+                Meshes.Add(mesh);
+            }
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show(e.ToString());
+        }
+
+        lastDirPath = dirPath;
+
+        ReloadPanels();
+        return true;
+    }
+
     /// <summary>
     /// Save all changes to an open robot
     /// </summary>
     /// <param name="isSaveAs">If this is a "Save As" operation</param>
     /// <returns>If the save operation succeeded</returns>
-    public bool SaveRobot(bool isSaveAs)
+    public bool SaveRobot(bool isSaveAs = false, bool previewRobot = false)
     {
         if (SkeletonBase == null || Meshes == null) return false;
 
@@ -343,6 +397,11 @@ public partial class SynthesisGUI : Form
         MessageBox.Show("Saved!");
 
         lastDirPath = dirPath;
+
+        if(previewRobot)
+        {
+            Process.Start(Utilities.VIEWER_PATH, "-path " + lastDirPath);
+        }
 
         return true;
     }
@@ -436,7 +495,7 @@ public partial class SynthesisGUI : Form
     /// Warn the user that they are about to exit without unsaved work
     /// </summary>
     /// <returns>Whether the user wishes to continue without saving</returns>
-    private bool WarnUnsaved()
+    public bool WarnUnsaved()
     {
         DialogResult saveResult = MessageBox.Show("Do you want to save your work?", "Save", MessageBoxButtons.YesNoCancel);
 
@@ -508,5 +567,13 @@ public partial class SynthesisGUI : Form
     public void FileLoad_OnClick(object sender, System.EventArgs e)
     {
         ExportMeshes();
+    }
+
+    public void PreviewRobot()
+    {
+        if(lastDirPath != null)
+        {
+            Process.Start(Utilities.VIEWER_PATH, "-path " + lastDirPath);
+        }
     }
 }

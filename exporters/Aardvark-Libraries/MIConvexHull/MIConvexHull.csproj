@@ -36,6 +36,9 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\MIConvexHull.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'FodyRelease|AnyCPU'">
+    <OutputPath>bin\FodyRelease\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>

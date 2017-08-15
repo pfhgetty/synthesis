@@ -15,7 +15,7 @@ namespace OGLViewer
             {
                 if (_partShader == -1)
                 {
-                    _partShader = loadPartShader();
+                    _partShader = LoadPartShader();
 
                     if (_partShader == -1) throw new IOException("Couldn't load shader program. See logs for more details");
                 }
@@ -32,11 +32,13 @@ namespace OGLViewer
             }
         }
 
-        private static int loadPartShader()
+        private static int LoadPartShader()
         {
+            #region DEBUG
 #if DEBUG
             Console.WriteLine("Compiling shader program");
-#endif
+#endif 
+            #endregion
 
             int shaderProgram = GL.CreateProgram();
             int vertexShader = GL.CreateShader(ShaderType.VertexShader);
@@ -48,8 +50,8 @@ namespace OGLViewer
             {
                 string myExeDir = (new FileInfo(System.Reflection.Assembly.GetEntryAssembly().Location)).DirectoryName;
 
-                StreamReader vertexSourceReader = new StreamReader(myExeDir + "\\Shaders\\shader.vert");
-                StreamReader fragmentSourceReader = new StreamReader(myExeDir + "\\Shaders\\shader.frag");
+                StreamReader vertexSourceReader = new StreamReader(new MemoryStream(Properties.Resources.VertexShader));
+                StreamReader fragmentSourceReader = new StreamReader(new MemoryStream(Properties.Resources.FragmentShader));
 
                 vertexShaderSource = vertexSourceReader.ReadToEnd();
                 fragmentShaderSource = fragmentSourceReader.ReadToEnd();
@@ -63,16 +65,16 @@ namespace OGLViewer
                 return -1;
             }
 
+            #region DEBUG
 #if DEBUG
             Console.WriteLine("Vertex shader:\n" + vertexShaderSource);
             Console.WriteLine("Fragment shader:\n" + fragmentShaderSource);
-#endif
-
-            int status;
+#endif 
+            #endregion
 
             GL.ShaderSource(vertexShader, vertexShaderSource);
             GL.CompileShader(vertexShader);
-            GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out status);
+            GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
             {
                 Console.WriteLine("Vertex shader log:\n" + GL.GetShaderInfoLog(vertexShader));
@@ -98,9 +100,11 @@ namespace OGLViewer
                 return -1;
             }
 
+            #region DEBUG
 #if DEBUG
             Console.WriteLine("Shaders compiled and linked successfully");
-#endif
+#endif 
+            #endregion
 
             return shaderProgram;
         }

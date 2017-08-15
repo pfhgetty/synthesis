@@ -11,8 +11,7 @@
     </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>BxDRobotExporter.pfx</AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
     <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
@@ -40,7 +39,7 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
@@ -52,7 +51,7 @@
     <RegisterForComInterop>true</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -60,7 +59,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\..\..\..\..\..\AppData\Roaming\Autodesk\ApplicationPlugins\BxDRobotExporter\</OutputPath>
+    <OutputPath>E:\Program Files\Autodesk\Inventor 2018\Bin\BxDRobotExporter\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -69,17 +68,17 @@
     <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
-    <DebugSymbols>false</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
     <NoWarn>
     </NoWarn>
     <Optimize>true</Optimize>
-    <RegisterForComInterop>false</RegisterForComInterop>
+    <RegisterForComInterop>true</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
@@ -87,10 +86,20 @@
   <PropertyGroup>
     <AssemblyName>BxDRobotExporter</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'FodyRelease|AnyCPU'">
+    <OutputPath>E:\Program Files\Autodesk\Inventor 2018\Bin\BxDRobotExporter\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RegisterForComInterop>true</RegisterForComInterop>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="autodesk.inventor.interop, Version=21.0.0.0, Culture=neutral, PublicKeyToken=d84147f8b4276564, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Autodesk.Inventor.Interop\v4.0_21.0.0.0__d84147f8b4276564\autodesk.inventor.interop.dll</HintPath>
     </Reference>
     <Reference Include="Costura, Version=1.6.2.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
@@ -140,6 +149,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="BxD.StrongNameKey.snk" />
+    <None Include="BxDRobotExporter.pfx" />
     <None Include="BxDRobotExporter.X.manifest" />
   </ItemGroup>
   <ItemGroup>

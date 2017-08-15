@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace EditorsLibrary
+namespace StandaloneViewer
 {
     public partial class AboutDialog : Form
     {

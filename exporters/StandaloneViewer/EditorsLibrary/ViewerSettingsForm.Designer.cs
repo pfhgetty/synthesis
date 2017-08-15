@@ -1,4 +1,4 @@
-﻿namespace EditorsLibrary
+﻿namespace StandaloneViewer
 {
     partial class ViewerSettingsForm
     {

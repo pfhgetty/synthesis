@@ -38,12 +38,17 @@ namespace BxDRobotExporter
         RibbonPanel HelpPanel;
 
 
-        //Buttons
+        //Standalone Buttons
         ButtonDefinition LoadExportedRobotButton;
         ButtonDefinition ExportMeshesButton;
-        ButtonDefinition ExportJointsButton;
         ButtonDefinition ExporterSettingsButton;
         ButtonDefinition HelpButton;
+        ButtonDefinition PreviewRobotButton;
+
+        //Dropdown buttons
+        ObjectCollection SaveButtonCollection;
+        ButtonDefinition SaveButton;
+        ButtonDefinition SaveAsButton;
 
         //Highlighting
         HighlightSet ChildHighlight;
@@ -58,7 +63,7 @@ namespace BxDRobotExporter
 #endif
         #endregion
         #endregion
-        
+
         #region ApplicationAddInServer Methods
         /// <summary>
         /// Called when the <see cref="StandardAddInServer"/> is being loaded
@@ -88,6 +93,12 @@ namespace BxDRobotExporter
 
             stdole.IPictureDisp LoadExportedRobotIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.LoadRobot16));
             stdole.IPictureDisp LoadExportedRobotIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.LoadRobot32));
+
+            stdole.IPictureDisp PreviewRobotIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.SelectJointInsideJoint16));
+            stdole.IPictureDisp PreviewRobotIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.SelectJointInsideJoint32));
+
+            stdole.IPictureDisp SaveRobotIconSmall = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExportRobot16));
+            stdole.IPictureDisp SaveRobotIconLarge = PictureDispConverter.ToIPictureDisp(new Bitmap(Resource.ExportRobot32));
 
             #region DEBUG
 #if DEBUG
@@ -122,17 +133,35 @@ namespace BxDRobotExporter
             LoadExportedRobotButton.OnHelp += _OnHelp;
             FilePanel.CommandControls.AddButton(LoadExportedRobotButton, true);
 
+            #region Save Split Button
+            //Save Button
+            SaveButton = ControlDefs.AddButtonDefinition("Save", "BxD:RobotExporter:SaveRobot", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, SaveRobotIconSmall, SaveRobotIconLarge);
+            SaveButton.OnExecute += SaveButton_OnExecute;
+            SaveButton.OnHelp += _OnHelp;
+
+            //Save As Button
+            SaveAsButton = ControlDefs.AddButtonDefinition("Save As...", "BxD:RobotExporter:SaveAs", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, SaveRobotIconSmall, SaveRobotIconLarge);
+            SaveAsButton.OnExecute += SaveAsButton_OnExecute;
+            SaveAsButton.OnHelp += _OnHelp;
+
+            //Save Control Definition
+            SaveButtonCollection = MainApplication.TransientObjects.CreateObjectCollection();
+            SaveButtonCollection.Add(SaveButton);
+            SaveButtonCollection.Add(SaveAsButton);
+            FilePanel.CommandControls.AddSplitButton(SaveButton, SaveButtonCollection, true);
+            #endregion
+
+            //Preview Robot
+            PreviewRobotButton = ControlDefs.AddButtonDefinition("Preview Robot", "BxD:RobotExporter:PreviewRobot", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, PreviewRobotIconSmall, PreviewRobotIconLarge);
+            PreviewRobotButton.OnExecute += PreviewRobotButton_OnExecute;
+            PreviewRobotButton.OnHelp += _OnHelp;
+            FilePanel.CommandControls.AddButton(PreviewRobotButton, true);
+
             //Export Meshes
             ExportMeshesButton = ControlDefs.AddButtonDefinition("Export Meshes", "BxD:RobotExporter:ExportMeshes", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ExportMeshesIconSmall, ExportMeshesIconLarge);
             ExportMeshesButton.OnExecute += ExportMeshes_OnExecute;
             ExportMeshesButton.OnHelp += _OnHelp;
             ExportPanel.CommandControls.AddButton(ExportMeshesButton, true);
-
-            //Export Joints
-            ExportJointsButton = ControlDefs.AddButtonDefinition("Export Joints", "BxD:RobotExporter:ExportJoints", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ExportJointsIconSmall, ExportJointsIconLarge);
-            ExportJointsButton.OnExecute += ExportJointsButton_OnExecute;
-            ExportMeshesButton.OnHelp += _OnHelp;
-            ExportPanel.CommandControls.AddButton(ExportJointsButton, true);
 
             //Exporter Settings
             ExporterSettingsButton = ControlDefs.AddButtonDefinition("Exporter Settings", "BxD:RobotExporter:ExporterSettings", CommandTypesEnum.kNonShapeEditCmdType, ClientID, null, null, ExporterSettingsIconLarge, ExporterSettingsIconLarge);
@@ -145,6 +174,7 @@ namespace BxDRobotExporter
             HelpButton.OnExecute += HelpButton_OnExecute;
             HelpButton.OnHelp += _OnHelp;
             HelpPanel.CommandControls.AddButton(HelpButton, true);
+
 
             #region DEBUG
 #if DEBUG
@@ -169,9 +199,8 @@ namespace BxDRobotExporter
             };
             DebugPanel.CommandControls.AddButton(UITestButton, true);
 #endif
-            #endregion 
             #endregion
-
+            #endregion
             #endregion
 
             #region Final Environment Setup
@@ -190,6 +219,8 @@ namespace BxDRobotExporter
 
             Instance = this;
         }
+
+
 
         /// <summary>
         /// Called when the <see cref="StandardAddInServer"/> is being unloaded
@@ -270,6 +301,10 @@ namespace BxDRobotExporter
             //Sets up events for selecting and deselecting parts in inventor
             Utilities.GUI.jointEditorPane1.SelectedJoint += JointEditorPane_SelectedJoint;
             ExporterSettingsForm.PluginSettingsValues.SettingsChanged += ExporterSettings_SettingsChanged;
+
+            PreviewRobotButton.Enabled = false;
+            SaveAsButton.Enabled = false;
+            SaveButton.Enabled = false;
         }
 
         /// <summary>
@@ -280,7 +315,7 @@ namespace BxDRobotExporter
             AsmDocument = null;
             Utilities.DisposeDockableWindows();
             ChildHighlight = null;
-        } 
+        }
         #endregion
 
         #region Event Callbacks and Button Commands
@@ -346,6 +381,7 @@ namespace BxDRobotExporter
             }
             else if (Environment.Equals(ExporterEnv) && EnvironmentState == EnvironmentStateEnum.kTerminateEnvironmentState && EnvironmentEnabled && BeforeOrAfter == EventTimingEnum.kBefore)
             {
+                SaveButton_OnExecute(null);
                 ToggleEnvironment();
             }
             HandlingCode = HandlingCodeEnum.kEventNotHandled;
@@ -357,6 +393,15 @@ namespace BxDRobotExporter
         private void HelpButton_OnExecute(NameValueMap Context)
         {
             Process.Start("http://bxd.autodesk.com/tutorial-robot.html");
+        }
+
+        /// <summary>
+        /// Opens a standalone robot viewer to that will display joint information and such
+        /// </summary>
+        /// <param name="Context"></param>
+        private void PreviewRobotButton_OnExecute(NameValueMap Context)
+        {
+            Utilities.GUI.PreviewRobot();
         }
 
         /// <summary>
@@ -374,11 +419,13 @@ namespace BxDRobotExporter
         /// <param name="Context"></param>
         private void ExportMeshes_OnExecute(NameValueMap Context)
         {
-            if(Utilities.GUI.SkeletonBase != null)
+            if ((Utilities.GUI.SkeletonBase == null || Utilities.GUI.WarnUnsaved()) && Utilities.GUI.ExportMeshes())
             {
-                Utilities.GUI.SetNew();
+                SaveAsButton_OnExecute(null);
+                PreviewRobotButton.Enabled = true;
+                SaveAsButton.Enabled = true;
+                SaveButton.Enabled = true;
             }
-            Utilities.GUI.ExportMeshes();
         }
 
         /// <summary>
@@ -388,22 +435,37 @@ namespace BxDRobotExporter
         /// <param name="Context"></param>
         private void LoadExportedRobotButton_OnExecute(NameValueMap Context)
         {
-            Utilities.GUI.OpenExisting(ValidateAssembly);
+            if(Utilities.GUI.OpenExisting(ValidateAssembly))
+            {
+                PreviewRobotButton.Enabled = true;
+                SaveAsButton.Enabled = true;
+                SaveButton.Enabled = true;
+            }
+
         }
 
+        /// <summary>
+        /// Saves the active robot to the previous directory if one exists
+        /// </summary>
+        /// <param name="Context"></param>
+        private void SaveButton_OnExecute(NameValueMap Context)
+        {
+            Utilities.GUI.SaveRobot();
+        }
+        
         /// <summary>
         /// Opens a <see cref="FolderBrowserDialog"/> and prompts the user to select the folder where they want their robot to be saved.
         /// Note: soon this should be replaced with an <see cref="OpenFileDialog"/> when the old format is merged into one file.
         /// </summary>
         /// <param name="Context"></param>
-        private void ExportJointsButton_OnExecute(NameValueMap Context)
+        private void SaveAsButton_OnExecute(NameValueMap Context)
         {
-            if(Utilities.GUI.SkeletonBase == null)
+            if (Utilities.GUI.SkeletonBase == null)
             {
                 MessageBox.Show("Please load or generate meshes before exporting joints");
                 return;
             }
-            Utilities.GUI.SaveRobot(true);
+            Utilities.GUI.SaveRobot(true, false);
         }
 
         /// <summary>
@@ -429,13 +491,13 @@ namespace BxDRobotExporter
             {
                 return;
             }
-            foreach(RigidNode_Base node in nodes)
+            foreach (RigidNode_Base node in nodes)
             {
                 SelectNode(node.GetModelID().Substring(0, node.GetModelID().Length - 3), JointNodeTypeEnum.kChildNode);
                 if (node.GetParent() != null && IsParentHighlight)
                 {
                     string[] Nodes = node.GetParent().ModelFullID.Split(new char[] { '-', '_', '-' });
-                    foreach(string name in Nodes)
+                    foreach (string name in Nodes)
                     {
                         SelectNode(name, JointNodeTypeEnum.kParentNode);
                     }
@@ -456,6 +518,7 @@ namespace BxDRobotExporter
             ParentHighlight.Color = Utilities.GetInventorColor(Parent);
             this.IsParentHighlight = IsParentHighlight;
         }
+
         #endregion
 
         #region Miscellaneous Methods
@@ -497,7 +560,12 @@ namespace BxDRobotExporter
                 return false;
             }
         }
-
+        
+        /// <summary>
+        /// Checks to see if a <see cref="ComponentOccurrence"/> of the specified name exists
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         private bool CheckForOccurrence(string name)
         {
             foreach (ComponentOccurrence component in AsmDocument.ComponentDefinition.Occurrences)
@@ -507,7 +575,12 @@ namespace BxDRobotExporter
             }
             return false;
         }
-
+        
+        /// <summary>
+        /// Adds a <see cref="ComponentOccurrence"/> with the specified name to the specified <see cref="HighlightSet"/>
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="jointNodeType"></param>
         private void SelectNode(string Name, JointNodeTypeEnum jointNodeType)
         {
             switch (jointNodeType)
@@ -533,7 +606,24 @@ namespace BxDRobotExporter
             }
 
 
-        } 
+        }
+
+        /// <summary>
+        /// Sets the tooltip of a <see cref="ButtonDefinition"/>
+        /// </summary>
+        /// <param name="button">The <see cref="ButtonDefinition"/> the tool tip is being applied to</param>
+        /// <param name="description">The description of the command which the <paramref name="button"/> executes</param>
+        /// <param name="expandedDescription">The expanded description of the command which appears after hovering the cursor over the button for a few seconds</param>
+        /// <param name="picture">The image that appears along side the <paramref name="expandedDescription"/></param>
+        /// <param name="title">The bolded title appearing at the top of the tooltip</param>
+        public void ToolTip(ButtonDefinition button, string title, string description, string expandedDescription = null, stdole.IPictureDisp picture = null)
+        {
+            button.ProgressiveToolTip.Description = description;
+            button.ProgressiveToolTip.ExpandedDescription = expandedDescription;
+            button.ProgressiveToolTip.Image = picture;
+            button.ProgressiveToolTip.IsProgressive = true;
+            button.ProgressiveToolTip.Title = title;
+        }
         #endregion
     }
 }

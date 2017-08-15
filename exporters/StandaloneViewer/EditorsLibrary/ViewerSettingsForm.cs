@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 
-namespace EditorsLibrary
+namespace StandaloneViewer
 {
     public partial class ViewerSettingsForm : Form
     {

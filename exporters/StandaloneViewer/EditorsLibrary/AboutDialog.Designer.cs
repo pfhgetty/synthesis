@@ -1,4 +1,4 @@
-﻿namespace EditorsLibrary
+﻿namespace StandaloneViewer
 {
     partial class AboutDialog
     {
@@ -37,7 +37,7 @@
             // pictureBox1
             // 
             this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.pictureBox1.Image = global::EditorsLibrary.Properties.Resources.SmallIcon;
+            this.pictureBox1.Image = global::StandaloneViewer.Properties.Resources.SmallIcon;
             this.pictureBox1.Location = new System.Drawing.Point(109, 30);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(64, 64);

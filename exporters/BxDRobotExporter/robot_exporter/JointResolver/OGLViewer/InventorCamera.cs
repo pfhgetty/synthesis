@@ -16,7 +16,6 @@ namespace OGLViewer
     /// </summary>
     public class InventorCamera
     {
-
         /// <summary>
         /// The enum representing the camera's mode
         /// </summary>

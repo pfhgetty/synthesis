@@ -132,7 +132,7 @@ public partial class LiteExporterForm : Form
             ExporterWorker.CancelAsync();
         Close();
         if (ExporterWorker.CancellationPending)
-            ExporterWorker.Dispose();
+            throw new TaskCanceledException();
     }
 
     private void ExporterWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

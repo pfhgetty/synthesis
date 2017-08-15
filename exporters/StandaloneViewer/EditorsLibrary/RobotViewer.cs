@@ -12,7 +12,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OGLViewer;
 
-namespace EditorsLibrary
+namespace StandaloneViewer
 {
 
     /// <summary>
@@ -28,17 +28,17 @@ namespace EditorsLibrary
         /// <summary>
         /// Whether or not the GLControl has loaded yet
         /// </summary>
-        public bool isLoaded { get; private set; }
+        public bool IsLoaded { get; private set; }
 
         /// <summary>
         /// Whether or not a model has been loaded into the viewer
         /// </summary>
-        public bool modelLoaded { get; private set; }
+        public bool ModelLoaded { get; private set; }
 
         /// <summary>
         /// The width and height of the node selection FBO
         /// </summary>
-        private int SELECT_BUFFER_WIDTH = 768, SELECT_BUFFER_HEIGHT = 500;
+        private int SELECT_BUFFER_WIDTH = LaunchParams.WindowSize.Width, SELECT_BUFFER_HEIGHT = LaunchParams.WindowSize.Height;
 
         /// <summary>
         /// The list of nodes on the robot model
@@ -143,24 +143,24 @@ namespace EditorsLibrary
         /// <param name="meshes">The meshes to render</param>
         public void LoadModel(RigidNode_Base node, List<BXDAMesh> meshes)
         {
-            modelLoaded = false;
+            ModelLoaded = false;
 
             if (node == null || meshes == null) return;
 
-            baseNode = (OGL_RigidNode)node;
+            baseNode = new OGL_RigidNode(node);
 
             nodes = baseNode.ListAllNodes();
 
             for (int i = 0; i < meshes.Count; i++)
             {
-                ((OGL_RigidNode)nodes[i]).loadMeshes(meshes[i]);
+                ((OGL_RigidNode)nodes[i]).LoadMeshes(meshes[i]);
             }
 
             cam.pose = Matrix4.Identity;
 
             activeObjects = new List<RigidNode_Base>();
 
-            modelLoaded = true;
+            ModelLoaded = true;
         }
 
         /// <summary>
@@ -170,12 +170,10 @@ namespace EditorsLibrary
         public void LoadSettings(ViewerSettingsForm.ViewerSettingsValues newSettings)
         {
             settings = newSettings;
+            settings.cameraDebugMode = false;
 
             cameraMult = (float)settings.cameraSensitivity / 3f;
             cameraDebug = settings.cameraDebugMode;
-            labelDebugPosition.Visible = cameraDebug;
-            labelDebugRotation.Visible = cameraDebug;
-            labelDebugMode.Visible = cameraDebug;
         }
 
         /// <summary>
@@ -212,15 +210,15 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="sender">Object sending the event</param>
         /// <param name="e">Event arguments</param>
-        private void glControl1_Load(object sender, EventArgs e)
+        private void GLControl1_Load(object sender, EventArgs e)
         {
             cam = new InventorCamera();
-            glControl1.KeyDown += viewer_KeyDown;
-            glControl1.KeyUp += viewer_KeyUp;
-            glControl1.MouseDown += viewer_MouseDown;
-            glControl1.MouseUp += viewer_MouseUp;
-            glControl1.MouseMove += viewer_MouseMoved;
-            glControl1.MouseWheel += viewer_MouseWheel;
+            glControl1.KeyDown += Viewer_KeyDown;
+            glControl1.KeyUp += Viewer_KeyUp;
+            glControl1.MouseDown += Viewer_MouseDown;
+            glControl1.MouseUp += Viewer_MouseUp;
+            glControl1.MouseMove += Viewer_MouseMoved;
+            glControl1.MouseWheel += Viewer_MouseWheel;
 
             GL.ClearColor(System.Drawing.Color.LightGreen);
             GL.Enable(EnableCap.Lighting);
@@ -231,22 +229,22 @@ namespace EditorsLibrary
             GL.CullFace(CullFaceMode.Back);
             int j = ShaderLoader.PartShader;//Loadshader
 
-            setupSelectBuffer();
+            SetupSelectBuffer();
 
-            Application.Idle += delegate(object send, EventArgs ea)
+            Application.Idle += delegate (object send, EventArgs ea)
             {
                 while (glControl1.IsIdle)
                 {
-                    glControl1_Paint(null, null);
+                    GLControl1_Paint(null, null);
                 }
             };
-            isLoaded = true;
+            IsLoaded = true;
         }
 
         /// <summary>
         /// Set up the node selection texture and FBO
         /// </summary>
-        private void setupSelectBuffer()
+        private void SetupSelectBuffer()
         {
             selectTextureHandle = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, selectTextureHandle);
@@ -268,7 +266,7 @@ namespace EditorsLibrary
         /// <summary>
         /// Select nodes that the mouse is hovering over
         /// </summary>
-        private void doSelect()
+        private void DoSelect()
         {
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, selectFBOHandle);
             GL.DrawBuffer((DrawBufferMode)FramebufferAttachment.ColorAttachment0Ext);
@@ -280,7 +278,7 @@ namespace EditorsLibrary
                 GL.ClearColor(System.Drawing.Color.White);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
 
-                renderInternal(true);
+                RenderInternal(true);
 
                 byte[] pixels = new byte[4];
                 GL.ReadPixels((int)mouseState.lastPos.X, Height - (int)mouseState.lastPos.Y, 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
@@ -310,7 +308,7 @@ namespace EditorsLibrary
         /// <summary>
         /// Render the camera overlay
         /// </summary>
-        private void renderOverlay()
+        private void RenderOverlay()
         {
             cam.renderOverlay(Width, Height);
         }
@@ -319,11 +317,11 @@ namespace EditorsLibrary
         /// Render each rigid node with any selection information that may exist
         /// </summary>
         /// <param name="selectState"></param>
-        private void renderInternal(bool selectState = false)
+        private void RenderInternal(bool selectState = false)
         {
             foreach (RigidNode_Base node in nodes)
             {
-                ((OGL_RigidNode)node).render(selectState, settings.modelHighlightColor, settings.modelTintColor);
+                ((OGL_RigidNode)node).Render(selectState, settings.modelHighlightColor, settings.modelTintColor);
             }
         }
 
@@ -332,19 +330,19 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="sender">Object sending the event</param>
         /// <param name="e">Paint event arguments</param>
-        private void glControl1_Paint(object sender, PaintEventArgs e)
+        private void GLControl1_Paint(object sender, PaintEventArgs e)
         {
             GL.Enable(EnableCap.Lighting);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            if (!isLoaded || !modelLoaded)
+            if (!IsLoaded || !ModelLoaded)
             {
                 glControl1.SwapBuffers();
                 return;
             }
 
-            updateCameraMode();
-            baseNode.compute(settings.modelActuateJoints);
+            UpdateCameraMode();
+            baseNode.Compute(true);
 
             // Project
             GL.MatrixMode(MatrixMode.Projection);
@@ -370,15 +368,15 @@ namespace EditorsLibrary
             GL.Light(LightName.Light1, LightParameter.Specular, l_specular);
             #endregion
 
-            doSelect();
-            renderInternal();
+            DoSelect();
+            RenderInternal();
 
             // Overlay:
             foreach (RigidNode_Base node in nodes)
             {
                 if ((((OGL_RigidNode)node).highlight & OGL_RigidNode.HighlightState.ACTIVE) == OGL_RigidNode.HighlightState.ACTIVE)
                 {
-                    ((OGL_RigidNode)node).renderDebug(settings.modelDrawAxes);
+                    ((OGL_RigidNode)node).RenderDebug(settings.modelDrawAxes);
                 }
             }
 
@@ -390,7 +388,7 @@ namespace EditorsLibrary
             GL.LoadIdentity();
             GL.UseProgram(0);
             GL.Disable(EnableCap.Lighting);
-            renderOverlay();
+            RenderOverlay();
             #endregion
 
             glControl1.SwapBuffers();
@@ -406,18 +404,18 @@ namespace EditorsLibrary
         /// <param name="e">The event arguments</param>
         private void RobotViewer_Resize(object sender, EventArgs e)
         {
-            if (!isLoaded) return;
+            if (!IsLoaded) return;
 
             SELECT_BUFFER_WIDTH = Width;
             SELECT_BUFFER_HEIGHT = Height;
 
-            setupSelectBuffer();
+            SetupSelectBuffer();
         }
 
         /// <summary>
         /// Update the camera's mode
         /// </summary>
-        private void updateCameraMode()
+        private void UpdateCameraMode()
         {
             if (keyboardState.F4Down || (mouseState.middleButtonDown && keyboardState.LShiftDown))
                 cam.currentMode = InventorCamera.Mode.ORBIT;
@@ -431,13 +429,29 @@ namespace EditorsLibrary
             if (cameraDebug)
             {
                 Vector3 pos = cam.pose.ExtractTranslation();
-                labelDebugPosition.Text = String.Format("Camera position: <{0}, {1}, {2}>", pos.X, pos.Y, pos.Z);
                 Vector4 rot = cam.pose.ExtractRotation().ToAxisAngle();
-                labelDebugRotation.Text = String.Format("Camera rotation: {0} radians around <{1}, {2}, {3}>", rot.W, rot.X, rot.Y, rot.Z);
-                labelDebugMode.Text = cam.currentMode.ToString();
             }
         }
 
+        public void HighlightAll()
+        {
+            for(int i = 1; i < nodes.Count; i++)
+            {
+                ((OGL_RigidNode)nodes[i]).highlight = OGL_RigidNode.HighlightState.ACTIVE;
+            }
+        }
+
+        public void FixLimits()
+        {
+            foreach(OGL_RigidNode node in baseNode.ListAllNodes())
+            {
+                if(node.GetSkeletalJoint() is RotationalJoint_Base joint && joint.hasAngularLimit)
+                {
+                    joint.angularLimitHigh += 1.57f;
+                    joint.angularLimitLow += 1.57f;
+                }
+            }
+        }
         #region INPUT
         /// <summary>
         /// The keyboard's state
@@ -470,7 +484,7 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="source">The source of the event</param>
         /// <param name="args">Keyboard event arguments</param>
-        private void viewer_KeyDown(object source, KeyEventArgs args)
+        private void Viewer_KeyDown(object source, KeyEventArgs args)
         {
             if (args.KeyCode == Keys.ShiftKey) keyboardState.LShiftDown = true;
             else if (args.KeyCode == Keys.ControlKey) keyboardState.LControlDown = true;
@@ -484,7 +498,7 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="source">The source of the event</param>
         /// <param name="args">Keyboard event arguments</param>
-        private void viewer_KeyUp(object source, KeyEventArgs args)
+        private void Viewer_KeyUp(object source, KeyEventArgs args)
         {
             if (args.KeyCode == Keys.ShiftKey) keyboardState.LShiftDown = false;
             else if (args.KeyCode == Keys.ControlKey) keyboardState.LControlDown = false;
@@ -498,7 +512,7 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="source">The source of the event</param>
         /// <param name="args">Mouse event arguments</param>
-        private void viewer_MouseDown(object source, MouseEventArgs args)
+        private void Viewer_MouseDown(object source, MouseEventArgs args)
         {
             if (args.Button == MouseButtons.Left) mouseState.leftButtonDown = true;
             else if (args.Button == MouseButtons.Right) mouseState.rightButtonDown = true;
@@ -506,11 +520,11 @@ namespace EditorsLibrary
 
             mouseState.dragStart = new Vector2(args.X, args.Y);
 
-            if (args.Button == MouseButtons.Left && (selectedObject as OGL_RigidNode) != null && modelLoaded)
+            if (args.Button == MouseButtons.Left && (selectedObject as OGL_RigidNode) != null && ModelLoaded)
             {
                 NodeSelected(selectedObject as RigidNode_Base, !keyboardState.LControlDown);
             }
-            else if (args.Button == MouseButtons.Left && !keyboardState.LControlDown && modelLoaded)
+            else if (args.Button == MouseButtons.Left && !keyboardState.LControlDown && ModelLoaded)
             {
                 NodeSelected(null, true);
                 activeObjects.Clear();
@@ -523,7 +537,7 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="source">The source of the event</param>
         /// <param name="args">Mouse event arguments</param>
-        private void viewer_MouseUp(object source, MouseEventArgs args)
+        private void Viewer_MouseUp(object source, MouseEventArgs args)
         {
             if (args.Button == MouseButtons.Left) mouseState.leftButtonDown = false;
             else if (args.Button == MouseButtons.Right) mouseState.rightButtonDown = false;
@@ -535,7 +549,7 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="source">The source of the event</param>
         /// <param name="args">Mouse event arguments</param>
-        private void viewer_MouseWheel(object source, MouseEventArgs args)
+        private void Viewer_MouseWheel(object source, MouseEventArgs args)
         {
             cam.offset -= args.Delta / 25f;
         }
@@ -545,7 +559,7 @@ namespace EditorsLibrary
         /// </summary>
         /// <param name="source">The source of the event</param>
         /// <param name="args">Mouse event arguments</param>
-        private void viewer_MouseMoved(object source, MouseEventArgs args)
+        private void Viewer_MouseMoved(object source, MouseEventArgs args)
         {
             Vector2 mousePos = new Vector2(args.X, args.Y);
             Vector2 deltaPos = mousePos - mouseState.lastPos;
@@ -586,7 +600,6 @@ namespace EditorsLibrary
             mouseState.lastPos = mousePos;
         }
         #endregion
-
     }
 
 }
