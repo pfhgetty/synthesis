@@ -115,25 +115,6 @@ public partial class BXDFProperties
         writer.WriteEndElement();
         // Writes the mesh data
 
-        // Writes the element identifier.
-        writer.WriteStartElement("BXDA");
-        writer.WriteAttributeString("ID", "mesh");
-        BinaryReader meshReader = new BinaryReader(new FileStream(path.Substring(0, (path.Length - (path.Length - path.LastIndexOf("\\")))) + "\\mesh.bxda", FileMode.OpenOrCreate));
-        string meshData = "";
-        while (meshReader.BaseStream.Position != meshReader.BaseStream.Length)
-        {
-            meshData += (meshReader.ReadByte()).ToString();
-            meshData += " ";
-            }
-        meshReader.Close();
-        File.Delete(path.Substring(0, (path.Length - (path.Length - path.LastIndexOf("\\")))) + "\\mesh.bxda");
-        writer.WriteElementString("MeshData", meshData);
-
-        writer.WriteEndElement();
-
-        // Ends the document.
-        writer.WriteEndDocument();
-
         // Close the writer.
         writer.Close();
     }

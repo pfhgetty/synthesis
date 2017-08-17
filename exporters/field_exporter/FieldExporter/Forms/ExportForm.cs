@@ -14,9 +14,7 @@ namespace FieldExporter.Components
     public partial class ExportForm : Form
     {
         public string path;
-
-        public static string exportPath;
-
+        
         /// <summary>
         /// Used for determining if the exporter is running.
         /// </summary>
@@ -169,11 +167,9 @@ namespace FieldExporter.Components
             }
 
             exporter.ReportProgress(100, "Export Successful!");
-
-            fieldDefinition.GetMeshOutput().WriteToFile(filePathTextBox.Text + "\\mesh.bxda");
-            exportPath = filePathTextBox.Text; 
-            BXDFProperties.WriteProperties(filePathTextBox.Text + "\\tester.FIELD", fieldDefinition);
-
+            
+            BXDFProperties.WriteProperties(filePathTextBox.Text + "\\" + Program.fullDocumentName +".FIELD", fieldDefinition);
+            fieldDefinition.GetMeshOutput().WriteToFile(filePathTextBox.Text + "\\" + Program.fullDocumentName +".FIELD");
             // Use the commented code below for debugging.
 
             /** /
@@ -190,9 +186,15 @@ namespace FieldExporter.Components
         /// <param name="e"></param>
         private void exporter_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            //statusLabel.Text = (string)e.UserState;
-            //exportProgressBar.Value = e.ProgressPercentage;
-        }
+            try {
+                statusLabel.Text = (string)e.UserState;
+                exportProgressBar.Value = e.ProgressPercentage;
+            }
+            catch(Exception error)
+            {
+                MessageBox.Show(error.Message);
+            }
+            }
 
         /// <summary>
         /// Resumes normality when the export process completes.
@@ -206,7 +208,7 @@ namespace FieldExporter.Components
             if (e.Cancelled || e.Error != null)
             {
                 statusLabel.Text = "Export Failed.";
-                //exportProgressBar.Value = 0;
+                exportProgressBar.Value = 0;
             }
 
             exportButton.Text = "Export";

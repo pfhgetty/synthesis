@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 /// <summary>
 /// Interface for objects that can read/write binary data to files
@@ -41,10 +42,43 @@ public static class BinaryRWObjectExtensions
     /// <param name="path">Output path</param>
     public static void WriteToFile(this BinaryRWObject obj, String path)
     {
-        using(BinaryWriter writer = new BinaryWriter(new FileStream(path, FileMode.OpenOrCreate)))
+        string MeshData = "";
+        using(BinaryWriter writer = new BinaryWriter(new FileStream("C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\Autodesk\\Synthesis\\TEMP.BXDA", FileMode.OpenOrCreate)))
         {
             writer.Write(obj);
         }
+        using(BinaryReader reader = new BinaryReader(new FileStream("C:\\Users\\" + Environment.UserName + "\\AppData\\Roaming\\Autodesk\\Synthesis\\TEMP.BXDA", FileMode.OpenOrCreate)))
+        {
+            while(reader.BaseStream.Position != reader.BaseStream.Length)
+            {
+                MeshData += reader.ReadByte();
+                MeshData += "";
+            }
+        }
+        XmlWriterSettings settings = new XmlWriterSettings()
+        {
+            Indent = true
+        };
+        XmlWriter finalWriter = XmlWriter.Create(path, settings);
+
+        // Writes the element identifier.
+        finalWriter.WriteStartElement("BXDA");
+        finalWriter.WriteAttributeString("ID", "mesh");
+        BinaryReader meshReader = new BinaryReader(new FileStream(path.Substring(0, (path.Length - (path.Length - path.LastIndexOf("\\")))) + "\\mesh.bxda", FileMode.OpenOrCreate));
+        string meshData = "";
+        while (meshReader.BaseStream.Position != meshReader.BaseStream.Length)
+        {
+            meshData += (meshReader.ReadByte()).ToString();
+            meshData += " ";
+        }
+        meshReader.Close();
+        File.Delete(path.Substring(0, (path.Length - (path.Length - path.LastIndexOf("\\")))) + "\\mesh.bxda");
+        finalWriter.WriteElementString("MeshData", meshData);
+
+        finalWriter.WriteEndElement();
+
+        // Ends the document.
+        finalWriter.WriteEndDocument();
     }
 
     /// <summary>
