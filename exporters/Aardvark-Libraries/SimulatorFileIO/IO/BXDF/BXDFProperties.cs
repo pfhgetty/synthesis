@@ -79,10 +79,11 @@ public partial class BXDFProperties
         writer.WriteStartDocument();
 
         /// Writes the root element and its GUID.
-        writer.WriteStartElement("BXDF");
+        writer.WriteStartElement("FIELD");
         writer.WriteAttributeString("Version", BXDF_CURRENT_VERSION);
         writer.WriteAttributeString("GUID", fieldDefinition.GUID.ToString());
 
+        writer.WriteStartElement("BXDF");
         Dictionary<string, PropertySet> propertySets = fieldDefinition.GetPropertySets();
 
         // Writes the data for each PropertySet.
@@ -109,6 +110,26 @@ public partial class BXDFProperties
 
         // Writes the node group.
         WriteFieldNodeGroup(writer, fieldDefinition.NodeGroup);
+
+        // Writes the end of the BXDF Section
+        writer.WriteEndElement();
+        // Writes the mesh data
+
+        // Writes the element identifier.
+        writer.WriteStartElement("BXDA");
+        writer.WriteAttributeString("ID", "mesh");
+        BinaryReader meshReader = new BinaryReader(new FileStream(path.Substring(0, (path.Length - (path.Length - path.LastIndexOf("\\")))) + "\\mesh.bxda", FileMode.OpenOrCreate));
+        string meshData = "";
+        while (meshReader.BaseStream.Position != meshReader.BaseStream.Length)
+        {
+            meshData += (meshReader.ReadByte()).ToString();
+            meshData += " ";
+            }
+        meshReader.Close();
+        File.Delete(path.Substring(0, (path.Length - (path.Length - path.LastIndexOf("\\")))) + "\\mesh.bxda");
+        writer.WriteElementString("MeshData", meshData);
+
+        writer.WriteEndElement();
 
         // Ends the document.
         writer.WriteEndDocument();

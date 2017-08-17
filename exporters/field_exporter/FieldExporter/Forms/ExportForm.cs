@@ -15,6 +15,8 @@ namespace FieldExporter.Components
     {
         public string path;
 
+        public static string exportPath;
+
         /// <summary>
         /// Used for determining if the exporter is running.
         /// </summary>
@@ -169,8 +171,8 @@ namespace FieldExporter.Components
             exporter.ReportProgress(100, "Export Successful!");
 
             fieldDefinition.GetMeshOutput().WriteToFile(filePathTextBox.Text + "\\mesh.bxda");
-
-            BXDFProperties.WriteProperties(filePathTextBox.Text + "\\definition.bxdf", fieldDefinition);
+            exportPath = filePathTextBox.Text; 
+            BXDFProperties.WriteProperties(filePathTextBox.Text + "\\tester.FIELD", fieldDefinition);
 
             // Use the commented code below for debugging.
 
@@ -188,8 +190,8 @@ namespace FieldExporter.Components
         /// <param name="e"></param>
         private void exporter_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            statusLabel.Text = (string)e.UserState;
-            exportProgressBar.Value = e.ProgressPercentage;
+            //statusLabel.Text = (string)e.UserState;
+            //exportProgressBar.Value = e.ProgressPercentage;
         }
 
         /// <summary>
