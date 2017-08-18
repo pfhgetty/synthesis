@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Assets.Scripts.FSM;
 using BulletSharp;
 using BulletUnity;
+using UnityEngine.Analytics;
 
 /// <summary>
 /// Helps the user with various helper functions such as stopwatch, and ruler
@@ -96,6 +97,12 @@ public class Toolkit : MonoBehaviour
     {
         if (show)
         {
+            if (SimUI.changeAnalytics)
+            {
+                Analytics.CustomEvent("Opened Toolkit", new Dictionary<string, object> //for analytics tracking
+                {
+                });
+            }
             toolkitWindow.SetActive(true);
         }
         else

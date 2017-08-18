@@ -6,6 +6,7 @@ using BulletUnity;
 using Assets.Scripts.FSM;
 using System.IO;
 using UnityEngine.SceneManagement;
+using UnityEngine.Analytics;
 
 /// <summary>
 /// SimUI serves as an interface between the Unity button UI and the various functions within the simulator.
@@ -44,8 +45,11 @@ public class SimUI : MonoBehaviour
     GameObject inputManagerPanel;
     GameObject unitConversionButton;
 
+    GameObject analyticsPanel;
+
     GameObject mixAndMatchPanel;
 
+    public static bool changeAnalytics = true;
     public bool swapWindowOn = false; //if the swap window is active
     public bool wheelPanelOn = false; //if the wheel panel is active
     public bool driveBasePanelOn = false; //if the drive base panel is active
@@ -137,6 +141,8 @@ public class SimUI : MonoBehaviour
         exitPanel = AuxFunctions.FindObject(canvas, "ExitPanel");
         loadingPanel = AuxFunctions.FindObject(canvas, "LoadingPanel");
 
+        analyticsPanel = AuxFunctions.FindObject(canvas, "AnalyticsPanel");
+
         sensorManager = GameObject.Find("SensorManager").GetComponent<SensorManager>();
         robotCameraManager = GameObject.Find("RobotCameraList").GetComponent<RobotCameraManager>();
         robotCameraGUI = GameObject.Find("StateMachine").GetComponent<RobotCameraGUI>();
@@ -164,6 +170,13 @@ public class SimUI : MonoBehaviour
             PlayerPrefs.SetString("simSelectedRobot", directory);
             PlayerPrefs.SetString("simSelectedRobotName", panel.GetComponent<ChangeRobotScrollable>().selectedEntry);
             PlayerPrefs.Save();
+
+            if (changeAnalytics) //for analytics tracking
+            {
+                Analytics.CustomEvent("Changed Robot", new Dictionary<string, object>
+                {
+                });
+            }
 
             robotCameraManager.DetachCamerasFromRobot(main.activeRobot);
             sensorManager.RemoveSensorsFromRobot(main.activeRobot);
@@ -210,6 +223,7 @@ public class SimUI : MonoBehaviour
         }
         else
         {
+
             EndOtherProcesses();
             changeRobotPanel.SetActive(true);
             robotListPanel.SetActive(true);
@@ -229,6 +243,13 @@ public class SimUI : MonoBehaviour
             PlayerPrefs.SetString("simSelectedField", directory);
             PlayerPrefs.SetString("simSelectedFieldName", panel.GetComponent<ChangeFieldScrollable>().selectedEntry);
             PlayerPrefs.Save();
+
+            if (changeAnalytics) //for analytics tracking
+            {
+                Analytics.CustomEvent("Changed Field", new Dictionary<string, object>
+                {
+                });
+            }
 
             int isMixAndMatch = PlayerPrefs.GetInt("mixAndMatch"); //0 is false, 1 is true
             if (isMixAndMatch == 1)
@@ -365,6 +386,12 @@ public class SimUI : MonoBehaviour
             EndOtherProcesses();
             isOrienting = true;
             main.BeginRobotReset();
+            if (changeAnalytics) //for analytics tracking
+            {
+                Analytics.CustomEvent("Changed Orientation", new Dictionary<string, object>
+                {
+                });
+            }
         }
         orientWindow.SetActive(isOrienting);
     }
@@ -426,11 +453,33 @@ public class SimUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Open totorial link
+    /// Open tutorial link
     /// </summary>
     public void OpenTutorialLink()
     {
         Application.OpenURL("http://bxd.autodesk.com/tutorials.html");
+        if (changeAnalytics) //for analytics tracking
+        {
+            Analytics.CustomEvent("Clicked Tutorial Link", new Dictionary<string, object>
+            {
+            });
+        }
+    }
+
+    /// <summary>
+    /// Activates analytics panel
+    /// </summary>
+    public void ToggleAnalyticsPanel()
+    {
+        if (analyticsPanel.activeSelf)
+        {
+            analyticsPanel.SetActive(false);
+        }
+        else
+        {
+            EndOtherProcesses();
+            analyticsPanel.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -521,6 +570,7 @@ public class SimUI : MonoBehaviour
         changeRobotPanel.SetActive(false);
         exitPanel.SetActive(false);
         mixAndMatchPanel.SetActive(false);
+        analyticsPanel.SetActive(false);
 
         CloseOrientWindow();
         main.IsResetting = false;
@@ -530,6 +580,13 @@ public class SimUI : MonoBehaviour
         multiplayer.EndProcesses();
         sensorManagerGUI.EndProcesses();
         robotCameraGUI.EndProcesses();
+    }
+
+    /// <summary>
+    /// Toggle for analytics
+    /// </summary>
+    public void ToggleAnalytics(bool tAnalytics) {
+        changeAnalytics = !changeAnalytics;
     }
 
     /// <summary>
